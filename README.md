@@ -1,5 +1,7 @@
 # MealSync - Hostel Mess Management System
 
+**Live Application**: [https://mealsync-mu.vercel.app](https://mealsync-mu.vercel.app)
+
 MealSync is a full-stack mess management platform designed for IIITDM Kancheepuram hostel residents, mess officials, and administration. It features a modern, responsive web portal to view daily menus, select dynamic dining halls, rate dishes, manage mess reallocations, and track leftover food waste.
 
 ---
