@@ -64,6 +64,7 @@ interface NonVegMenu {
     name: string;
     cost: number;
     icon: string;
+    isVeg?: boolean;
   }[];
 }
 
@@ -476,7 +477,7 @@ export default function LandingPage() {
                               className="p-4 rounded-2xl bg-[var(--surface-2)] border border-[var(--border)] hover:border-[var(--accent)]/30 transition-all duration-200 flex items-center justify-between group"
                             >
                               <div className="flex items-center gap-3">
-                                <FoodIndicator isVeg={item.isVeg} />
+                                <FoodIndicator isVeg={!!item.isVeg} />
                                 <div>
                                   <div className="text-sm font-semibold text-[var(--ink)] group-hover:text-[var(--accent-strong)] transition-colors">{item.name}</div>
                                   <div className="text-xs font-bold text-[var(--ink-muted)] mt-1">₹{item.cost}</div>
