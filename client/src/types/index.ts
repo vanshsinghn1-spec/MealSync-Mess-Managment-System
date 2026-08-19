@@ -24,6 +24,7 @@ export interface MessHall {
 export interface MenuItem {
   name: string;
   icon: string;
+  isVeg?: boolean;
 }
 
 export interface VegMenu {
@@ -39,6 +40,7 @@ export interface NonVegMenuItem {
   name: string;
   cost: number;
   icon: string;
+  isVeg?: boolean;
 }
 
 export interface NonVegMenu {

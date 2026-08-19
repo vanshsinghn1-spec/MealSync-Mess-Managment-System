@@ -36,6 +36,7 @@ import { Skeleton } from "@/components/ui/Skeleton";
 interface MenuItem {
   name: string;
   icon: string;
+  isVeg?: boolean;
 }
 
 interface VegMenu {
@@ -459,21 +460,6 @@ export default function LandingPage() {
                       })}
                     </div>
                   </div>
-                                  <>
-                                    <div className="flex items-center gap-1 text-[var(--ink-muted)]/50 text-xs font-medium">
-                                      <Star size={12} />
-                                      N/A
-                                    </div>
-                                    <div className="text-[9px] text-[var(--ink-muted)]/40 mt-0.5">No reviews</div>
-                                  </>
-                                )}
-                              </div>
-                            </div>
-                          );
-                        })}
-                      </div>
-                    </div>
-                  )}
 
                 </div>
               ) : (
