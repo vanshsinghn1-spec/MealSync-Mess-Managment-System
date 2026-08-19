@@ -66,7 +66,7 @@ function getWeekNumber(date) {
  */
 function getWeekType(date) {
   const weekNum = getWeekNumber(date || getISTTime());
-  return weekNum % 2 === 0 ? 'even' : 'odd';
+  return weekNum % 2 === 0 ? 'odd' : 'even';
 }
 
 /**

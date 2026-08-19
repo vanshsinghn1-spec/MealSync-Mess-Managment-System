@@ -2,6 +2,9 @@
  * Database Seed Script — Populates initial data for development
  * Run: npm run seed
  */
+const dns = require('dns');
+try { dns.setServers(['8.8.8.8', '1.1.1.1']); } catch (e) {}
+
 require('dotenv').config();
 const mongoose = require('mongoose');
 const bcrypt = require('bcryptjs');
@@ -17,91 +20,91 @@ const daysOfWeek = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Sat
 
 const evenWeekMenuData = {
   Monday: {
-    breakfast: ["Poori", "Aloo Masala Curry", "BBJ, Boiled Groundnuts, Corn Flakes", "Banana/Boiled Egg", "Tea, Coffee, Milk, Sugar, Salt"],
-    lunch: ["Pulkha, Garlic Tomato Curry", "Bindi Masala Fry, Kerala Sadiya Avial", "Rice, Vathakolambu, Curd", "Fryums, Pickle", "Sugar, Salt, Ghee, Podi", "Seasonal Fruit Juice, Lemon and Onion"],
-    snacks: ["Sundal (Boiled channa black & green gram)", "Tea, Coffee, Milk, Sugar, Raagi Malt"],
-    dinner: ["Chole Bature, Idiyappam", "Bagara Rice, Black Channa Curry", "Buttermilk, Onion", "Paruppu Payasam with Jaggery"]
+    breakfast: ["Poori", "Aloo Masala Curry", "BBJ, Boiled Groundnuts", "Banana (1) / Boiled Egg (1)", "Tea, Coffee, Milk, Sugar, Salt"],
+    lunch: ["Pulkha, Garlic Tomato Curry", "Kerala Sadiya Avial", "Rice, Vathakolambu, Curd", "Fryums, Pickle", "Sugar, Salt, Ghee, Podi", "Seasonal Fruit Juice, Onion"],
+    snacks: ["Sundal (Boiled channa black & green gram)", "Tea, Coffee, Milk, Sugar, Raagi Malt Powder"],
+    dinner: ["Tawa Chapathi, Channa Masala", "Rice, Sambar, Rasam, Cauliflower Peas Poriyal", "Buttermilk, Fryums", "Boondi Laddu (1)"]
   },
   Tuesday: {
-    breakfast: ["Ragi Dosa, Upma", "Sambar, Groundnut Chutney, Coconut", "BBJ, Sprouts, Sundal", "Seasonal Cut Fruits/Boiled Egg", "Tea, Coffee, Milk, Sugar, Salt"],
-    lunch: ["Tawa Chapathi, Palak Paneer Curry", "Andhra Tomato Dal, Moolaikeerai Poriyal", "Jeera Rice, Rice, Rasam, Curd", "Papad, Pickle", "Sugar, Salt, Ghee, Podi", "Salad, Lemon and Onion"],
-    snacks: ["Kaara Paniyaram (4), Tomato Onion Chutney", "Tea, Coffee, Milk, Sugar, Boost"],
-    dinner: ["Idli, Sambar, Karam Podi, Tomato Onion Chutney, Ghee", "Lemon Rice, Curd Rice, Potato Poriyal", "Pickle", "Sweet Pongal"]
+    breakfast: ["Ragi Dosa, Upma", "Sambar, Groundnut Chutney", "BBJ, Sprouts", "Seasonal Cut Fruits*** / Boiled Egg (1)", "Tea, Coffee, Milk, Sugar, Salt"],
+    lunch: ["Tawa Chapathi, Dum Aloo", "Andhra Tomato Dal, Greens Poriyal", "Jeera Rice, Rice, Rasam, Curd", "Papad, Pickle", "Sugar, Salt, Ghee, Podi", "Salad, Onion"],
+    snacks: ["Onion Pakoda", "Tea, Coffee, Milk, Sugar, Boost Sachets"],
+    dinner: ["Idli, Sambar, Karam Podi, Tomato Onion Chutney, Ghee", "Lemon Rice, Curd Rice, Potato Poriyal", "Pickle", "Sweet Pongal***"]
   },
   Wednesday: {
-    breakfast: ["Masala Dosa", "Sambar, Mint Chutney, Coconut Chutney", "BBJ, Boiled Groundnuts, Corn Flakes", "Banana/Boiled Egg", "Tea, Coffee, Milk, Sugar, Salt"],
-    lunch: ["Pulkha, Yellow Channa Dal Masala", "Kovakai Fry, Avarakkai Poriyal", "Rice, Sambar, Rasam, Curd", "Fryums, Pickle", "Sugar, Salt, Ghee, Podi", "Seasonal Fruit Juice, Lemon and Onion"],
-    snacks: ["Banana Bajji (3), Kadalai Chutney & Tomato Sauce", "Tea, Coffee, Milk, Sugar, Raagi Malt"],
-    dinner: ["Special Dinner", "Veg Fried Rice", "Gobi Manchurian", "Soup", "Ice Cream"]
+    breakfast: ["Masala Dosa", "Sambar, Tomato Onion Chutney", "BBJ, Boiled Groundnuts", "Banana (1) / Boiled Egg (1)", "Tea, Coffee, Milk, Sugar, Salt"],
+    lunch: ["Pulkha, Yellow Channa Dal Masala", "Kovakai Fry", "Rice, Sambar, Rasam, Curd", "Fryums, Pickle", "Sugar, Salt, Ghee, Podi", "Seasonal Fruit Juice, Onion"],
+    snacks: ["Banana Bajji (3), Kadalai Chutney", "Tea, Coffee, Milk, Sugar, Raagi Malt Powder"],
+    dinner: ["Special Dinner", "Naan / Roti with Paneer Butter Masala", "Hyderabadi Veg Biryani / Pulao", "Raita, Lemon Juice", "Ice Cream / Fruit Custard", "Fresh Fruits"]
   },
   Thursday: {
-    breakfast: ["Chow Chow Bath", "Mysore Bonda (3), Coconut Chutney", "BBJ, Sprouts, Sundal", "Seasonal Cut Fruits/Boiled Egg", "Tea, Coffee, Milk, Sugar, Salt"],
-    lunch: ["Tawa Chapathi, Paneer Peas Curry", "Gobi Fry, Spinach Kootu", "Rice, Sambar, Rasam, Curd", "Fryums, Pickle", "Sugar, Salt, Ghee, Podi", "Salad, Lemon and Onion"],
-    snacks: ["Sweet Corn", "Tea, Coffee, Milk, Sugar, Boost"],
-    dinner: ["Tawa Chapathi, Veg Biryani", "Aloo Curry, Raitha", "Buttermilk", "Pineapple Kesari"]
+    breakfast: ["Upma, Poha", "Mysore Bonda (3), Coconut Chutney", "BBJ, Sprouts", "Seasonal Cut Fruits*** / Boiled Egg (1)", "Tea, Coffee, Milk, Sugar, Salt"],
+    lunch: ["Tawa Chapathi, Paneer Peas Curry", "Spinach Kootu", "Rice, Sambar, Rasam, Curd", "Fryums, Pickle", "Sugar, Salt, Ghee, Podi", "Salad, Onion"],
+    snacks: ["Sweet Corn (half piece-6cm)", "Tea, Coffee, Milk, Sugar, Boost Sachets"],
+    dinner: ["Tawa Chapathi, Veg Biryani", "Aloo Curry, Raitha", "Buttermilk", "Pineapple Kesari***"]
   },
   Friday: {
-    breakfast: ["Rava Idly, Vada (2)", "Sambar, Tomato Onion Chutney, Coconut", "BBJ, Boiled Groundnuts, Corn Flakes", "Banana/Boiled Egg", "Tea, Coffee, Milk, Sugar, Salt"],
-    lunch: ["Pulkha, Matki", "Aloo Masala Curry", "Hyderabadi Veg Pulao, Raita", "Gongura Chutney, Papad", "Sugar, Salt, Ghee, Podi", "Seasonal Fruit Juice, Lemon and Onion"],
-    snacks: ["Mix Veg Maggi", "Tomato Sauce", "Tea, Coffee, Milk, Sugar, Raagi Malt"],
-    dinner: ["Tawa Chapathi, Paneer Curry", "Rice, Sambar, Rasam, Cauliflower Peas Poriyal", "Curd, Fryums", "Boondi Laddu (1)"]
+    breakfast: ["Rava Idly, Vada (3)", "Sambar, Tomato Onion Chutney", "BBJ, Boiled Groundnuts", "Banana (1) / Boiled Egg (1)", "Tea, Coffee, Milk, Sugar, Salt"],
+    lunch: ["Phulka, Aloo Masala Curry", "Hyderabadi Veg Pulao, Raita", "Gongura Chutney, Papad", "Sugar, Salt, Ghee, Podi", "Seasonal Fruit Juice, Onion"],
+    snacks: ["Mix Veg Maggi (130gm), Tomato Sauce", "Tea, Coffee, Milk, Sugar, Raagi Malt Powder"],
+    dinner: ["Chole Bature, Idiyappam", "Bagara Rice, Black Channa Curry", "Buttermilk, Onion", "Paruppu Payasam with Jaggery"]
   },
   Saturday: {
-    breakfast: ["Methi Paratha", "Kabuli Channa Masala, Curd, Pickle, Tomato Ketchup", "BBJ, Sprouts, Sundal", "Seasonal Cut Fruits/Boiled Egg", "Tea, Coffee, Milk, Sugar, Salt"],
-    lunch: ["Tawa Chapathi, Baigan Methi Curry", "Chilli Soya Bean Dry, Perugu Pachadi", "Rice, Sambar, Rasam", "Papad, Pickle", "Sugar, Salt, Ghee, Podi", "Banana Juice, Lemon and Onion"],
-    snacks: ["Aloo Samosa (2), Tomato Sauce, Mint Chutney", "Tea, Coffee, Milk, Sugar, Boost"],
-    dinner: ["Millet Dosa, Peanut Chutney", "Plain Rice, Mixed Dal", "Buttermilk, Papad", "Bread Halwa"]
+    breakfast: ["Methi Paratha", "Kabuli Channa Masala", "BBJ, Sprouts", "Seasonal Cut Fruits*** / Boiled Egg (1)", "Tea, Coffee, Milk, Sugar, Salt"],
+    lunch: ["Tawa Chapathi, Baigan Methi Curry", "Chilli Soya Bean Dry***, Perugu Pachadi", "Rice, Sambar, Rasam", "Papad, Pickle", "Sugar, Salt, Ghee, Podi", "Banana Juice, Onion"],
+    snacks: ["Aloo Samosa (2) (with peas), Tomato Sauce, Mint Chutney", "Tea, Coffee, Milk, Sugar, Boost Sachets"],
+    dinner: ["Millet Dosa, Peanut Chutney", "Plain Rice, Mixed Dal", "Buttermilk, Papad", "Bread Halwa***"]
   },
   Sunday: {
-    breakfast: ["Onion Carrot Uttapam", "Sambar, Coconut Chutney", "BBJ, Sprouts, Sundal", "Seasonal Cut Fruits/Boiled Egg", "Tea, Coffee, Milk, Sugar, Salt"],
-    lunch: ["Tawa Chapathi, Sev Tomato Gravy", "Veg Cutlet (2)", "Hyderabadi Paneer Biryani, Raitha / Chicken Biryani, Raitha", "Ice Cream", "Salad, Lemon and Onion"],
-    snacks: ["Bhel Puri", "Tea, Coffee, Milk, Sugar, Boost"],
+    breakfast: ["Onion Carrot Uttapam", "Sambar, Coconut Chutney", "BBJ, Sprouts", "Seasonal Cut Fruits*** / Boiled Egg (1)", "Tea, Coffee, Milk, Sugar, Salt"],
+    lunch: ["Tawa Chapathi, Sev Tomato Gravy", "Hyderabadi Paneer Biryani, Raitha / Hyderabadi Chicken Biryani, Raitha", "Ice Cream (1)", "Salad, Onion"],
+    snacks: ["Bhel Puri", "Tea, Coffee, Milk, Sugar, Boost Sachets"],
     dinner: ["Peanut Coconut Rice, Veg Kurma", "Phulka, Gutti Vankaya Curry", "Curd", "Gulab Jamun (2)"]
   }
 };
 
 const oddWeekMenuData = {
   Monday: {
-    breakfast: ["Pongal, Vada (3)", "Sambar, Coconut Chutney, Groundnut Chutney", "BBJ, Sprouts, Sundal", "Banana/Boiled Egg", "Tea, Coffee, Milk, Sugar, Salt"],
-    lunch: ["Pulkha, Dal Makhani", "Yam Fry, Plantain Poriyal", "Rice, Sambar, Rasam, Curd", "Pickle, Papad", "Sugar, Salt, Ghee, Podi", "Seasonal Fruit Juice, Lemon and Onion"],
-    snacks: ["Pasta", "Tea, Coffee, Milk, Sugar, Boost"],
+    breakfast: ["Pongal, Vada (3)", "Sambar, Coconut Chutney", "BBJ, Sprouts", "Banana (1) / Boiled Egg (1)", "Tea, Coffee, Milk, Sugar, Salt"],
+    lunch: ["Pulkha, Dal Makhani", "Plantain Poriyal", "Rice, Sambar, Rasam, Curd", "Pickle, Papad", "Sugar, Salt, Ghee, Podi", "Seasonal Fruit Juice, Onion"],
+    snacks: ["Pasta", "Tea, Coffee, Milk, Sugar, Boost Sachets"],
     dinner: ["Chole Bature, Onion Mirch Salad", "Rice, Snake Gourd Kootu", "Curd, Rasam", "Banana (1)"]
   },
   Tuesday: {
-    breakfast: ["Ponnaganni Keerai Dosa", "Sambar, Coconut Chutney, Tomato Chutney", "BBJ, Boiled Groundnuts, Corn Flakes", "Seasonal Cut Fruits/Boiled Egg", "Tea, Coffee, Milk, Sugar, Salt"],
-    lunch: ["Tawa Chapathi, Dum Aloo", "Beans Carrot Poriyal", "Rice, Panchratan Dal, Rasam, Curd, Fryums", "Pickle", "Sugar, Salt, Ghee, Podi", "Salad, Lemon and Onion"],
-    snacks: ["Kambu Kozhukattai (2) with Coconut Chutney", "Tea, Coffee, Milk, Sugar, Raagi Malt"],
+    breakfast: ["Wheat Dosa (or) Pesarattu", "Sambar, Tomato Onion Chutney", "BBJ, Boiled Groundnuts", "Seasonal Cut Fruits*** / Boiled Egg (1)", "Tea, Coffee, Milk, Sugar, Salt"],
+    lunch: ["Tawa Chapathi, Dum Aloo", "Beans Carrot Poriyal", "Rice, Panchratan Dal, Rasam, Curd, Fryums", "Pickle", "Sugar, Salt, Ghee, Podi", "Salad, Onion"],
+    snacks: ["Masala Vada (3), Pottukadalai Chutney", "Tea, Coffee, Milk, Sugar, Raagi Malt Powder"],
     dinner: ["Tawa Chapathi, Channa Masala", "Rice, Sambar, Beetroot Poriyal, Buttermilk", "Fryums", "Bread Halwa"]
   },
   Wednesday: {
-    breakfast: ["Puri", "Channa Masala", "BBJ, Sprouts, Sundal", "Banana/Boiled Egg", "Tea, Coffee, Milk, Sugar, Salt"],
-    lunch: ["Pulkha, Soya Curry", "Onion Pakoda, Perugu Pachadi", "Rice, Rasam, Sambar, Papad, Cabbage Moongdal Coconut Poriyal", "Pickle", "Sugar, Salt, Ghee, Podi", "Seasonal Fruit Juice, Lemon and Onion"],
-    snacks: ["Boiled Groundnuts Chat", "Tea, Coffee, Milk, Sugar, Boost"],
-    dinner: ["Phulka, Kambu Idli", "Sambar, Tomato Onion Chutney", "Dal Fry, Buttermilk", "Sabudhana Kheer, Kulfi (1)"]
+    breakfast: ["Puri", "Channa Masala", "BBJ, Sprouts", "Banana (1) / Boiled Egg (1)", "Tea, Coffee, Milk, Sugar, Salt"],
+    lunch: ["Pulkha, Soya Curry", "Onion Pakoda***, Perugu Pachadi", "Rice, Rasam, Puli Kolambu, Papad, Cabbage Moongdal Coconut Poriyal", "Pickle", "Sugar, Salt, Ghee, Podi", "Seasonal Fruit Juice, Onion"],
+    snacks: ["Boiled Groundnuts Chat", "Tea, Coffee, Milk, Sugar, Boost Sachets"],
+    dinner: ["Phulka, Kambu (Pearl Millet) Idli", "Sambar, Tomato Onion Chutney", "Dal Fry, Buttermilk", "Sabudhana Kheer, Kulfi (1) (Malai / Pista / Mango / Strawberry)"]
   },
   Thursday: {
-    breakfast: ["Wheat Rava Upma, Poha", "Mysore Bonda (3), Groundnut Chutney", "BBJ, Boiled Groundnuts, Corn Flakes", "Seasonal Cut Fruits/Boiled Egg", "Tea, Coffee, Milk, Sugar, Salt"],
-    lunch: ["Tawa Chapathi", "Kadai Paneer", "Rice, Masala Sambar, Curd, Fryums, Spinach Kootu", "Pickle", "Sugar, Salt, Ghee, Podi", "Salad, Lemon and Onion"],
-    snacks: ["Dahi Vada (2), Kara Boondi", "Tea, Coffee, Milk, Sugar, Raagi Malt"],
-    dinner: ["Wheat Paratha, Paneer Kofta Curry", "Rice, Sambar, Rasam, Kovakai Poriyal", "Onion Salad, Curd", "Badam Milk Hot, Vermicelli Payasam"]
+    breakfast: ["Wheat Rava Upma, Poha", "Mysore Bonda (3), Groundnut Chutney", "BBJ, Boiled Groundnuts", "Seasonal Cut Fruits*** / Boiled Egg (1)", "Tea, Coffee, Milk, Sugar, Salt"],
+    lunch: ["Tawa Chapathi, Kadai Paneer***", "Rice, Masala Sambar, Curd, Fryums, Spinach Kootu", "Pickle", "Sugar, Salt, Ghee, Podi", "Salad, Onion"],
+    snacks: ["Channa Chat", "Tea, Coffee, Milk, Sugar, Raagi Malt Powder"],
+    dinner: ["Flavoured Chapati, Paneer Kofta Curry", "Rice, Sambar, Rasam, Kovakai Poriyal", "Salad, Buttermilk", "Vermicelli Payasam"]
   },
   Friday: {
-    breakfast: ["Rava Idli, Vada (3)", "Sambar, Coconut Chutney, Groundnut Chutney", "BBJ, Sprouts, Sundal", "Banana/Boiled Egg", "Tea, Coffee, Milk, Sugar, Salt"],
-    lunch: ["Pulkha, Rajma Curry", "Jeera Rice, Drumstick Leaves Sambar", "Rice, Rasam, Curd, Fryums, Alloo Bhujia Sabji", "Gongura Chutney", "Sugar, Salt, Ghee, Podi", "Seasonal Fruit Juice, Lemon and Onion"],
-    snacks: ["Masala Vada (3), Pottukadalai Chutney", "Tea, Coffee, Milk, Sugar, Boost"],
-    dinner: ["Set Dosa, Veg Pulao", "Vada Curry", "Raitha, Buttermilk", "Kesari Bath"]
+    breakfast: ["Idli, Vada (3)", "Sambar, Coconut Chutney", "BBJ, Sprouts", "Banana (1) / Boiled Egg (1)", "Tea, Coffee, Milk, Sugar, Salt"],
+    lunch: ["Phulka, Rajma Curry", "Keerai Sambar", "Rice, Rasam, Curd, Fryums, Pumpkin Kootu", "Gongura Chutney", "Sugar, Salt, Ghee, Podi", "Seasonal Fruit Juice, Onion"],
+    snacks: ["Boiled Green Moong Dal", "Tea, Coffee, Milk, Sugar, Boost Sachets"],
+    dinner: ["Set Dosa, Veg Pulao", "Vada Curry", "Raitha, Buttermilk", "Kesari Bath***"]
   },
   Saturday: {
-    breakfast: ["Aloo Paratha", "Channa Masala, Curd, Pickle, Tomato Ketchup", "BBJ, Boiled Groundnuts", "Seasonal Cut Fruits/Boiled Egg", "Tea, Coffee, Milk, Sugar, Salt"],
-    lunch: ["Tawa Chapathi, Bhindi Dry Fry", "Lauki Chana Dal, Gobi 65", "Rice, Rasam, Curd, Papad, Raw Banana & Yam Avial", "Pickle", "Sugar, Salt, Ghee, Podi", "Banana Juice, Lemon and Onion"],
-    snacks: ["Millet Puttu, Black Chickpea Curry", "Tea, Coffee, Milk, Sugar, Raagi Malt"],
+    breakfast: ["Aloo Paratha", "Channa Masala, Curd, Pickle", "BBJ, Boiled Groundnuts", "Seasonal Cut Fruits*** / Boiled Egg (1)", "Tea, Coffee, Milk, Sugar, Salt"],
+    lunch: ["Tawa Chapathi", "Lauki Chana Dal, Gobi 65***", "Rice, Rasam, Curd, Tomato Andhra Dal, Papad, Plantain Stem Kootu", "Pickle", "Sugar, Salt, Ghee, Podi", "Banana Juice, Onion"],
+    snacks: ["Millet Puttu", "Tea, Coffee, Milk, Sugar, Raagi Malt Powder"],
     dinner: ["Pulka, Channa Peas Palak", "Sambar Rice, Curd Rice, Soya Chilli", "Kara Boondi, Pickle", "Gulab Jamun (2)"]
   },
   Sunday: {
-    breakfast: ["Rava Dosa, Semiya Upma", "Sambar, Coconut Chutney, Groundnut Chutney", "BBJ, Sprouts, Sundal", "Seasonal Cut Fruits/Boiled Egg", "Tea, Coffee, Milk, Sugar, Salt"],
-    lunch: ["Tawa Chapathi", "Paneer Kofta Curry / Chicken Curry", "Veg Biryani, Raitha", "Badusha (1)", "Seasonal Fruit Juice, Ice Cream", "Salad, Lemon and Onion"],
-    snacks: ["Pani Puri (6), Green Chutney, Tamarind Chutney", "Tea, Coffee, Milk, Sugar, Raagi Malt"],
-    dinner: ["Chapatti, Mix Veg Curry", "Tamarind Rice, Buttermilk, Aloo Bhujiya Sabji, Fryums", "Pickle, Ghee", "Seasonal Cut Fruits, Turmeric Milk"]
+    breakfast: ["Rava Dosa, Semiya Upma", "Sambar, Groundnut Chutney", "BBJ, Boiled Groundnuts", "Seasonal Cut Fruits*** / Boiled Egg (1)", "Tea, Coffee, Milk, Sugar, Salt"],
+    lunch: ["Tawa Chapathi, Palak Paneer Curry / Chicken Curry", "Veg Biryani, Raitha", "Badusha (1)", "Seasonal Fruit Juice, Ice Cream (1)", "Salad, Onion"],
+    snacks: ["Pani Puri (6), Green Chutney, Tamarind Chutney", "Tea, Coffee, Milk, Sugar, Raagi Malt Powder"],
+    dinner: ["Chapatti, Mix Veg Curry (Punjabi style)", "Tamarind Rice, Buttermilk, Aloo Bhujiya Sabhji, Fryums", "Pickle", "Seasonal Cut Fruits***, Turmeric Milk"]
   }
 };
 

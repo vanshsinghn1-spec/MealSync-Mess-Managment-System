@@ -24,7 +24,7 @@ export default function WeeklyMenuPage() {
   const userMessId = (session?.user as any)?.messId;
 
   const [selectedMess, setSelectedMess] = useState<"mess-1" | "mess-2">("mess-1");
-  const [weekType, setWeekType] = useState<"odd" | "even">("even");
+  const [weekType, setWeekType] = useState<"odd" | "even">("odd");
   const [weeklyMenu, setWeeklyMenu] = useState<any>(null);
   const [loading, setLoading] = useState(true);
 
