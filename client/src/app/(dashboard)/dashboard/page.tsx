@@ -190,7 +190,7 @@ function StudentDashboard({ userMessId }: { userMessId: any }) {
             {menuItems.length > 0 ? (
               menuItems.map((item, idx) => (
                 <div key={idx} className="p-4 rounded-2xl bg-[var(--surface-2)] border border-[var(--border)] flex items-center gap-3">
-                  <FoodIndicator isVeg={true} />
+                  <FoodIndicator isVeg={item.isVeg !== false} />
                   <span className="text-sm font-semibold text-[var(--ink)]">{item.name}</span>
                 </div>
               ))

@@ -144,7 +144,7 @@ export default function WeeklyMenuPage() {
                           {items.length > 0 ? (
                             items.map((item: any, index: number) => (
                               <li key={index} className="py-2 flex items-center gap-2 text-[var(--ink)] first:pt-0">
-                                <FoodIndicator isVeg={true} />
+                                <FoodIndicator isVeg={item.isVeg !== false} />
                                 <span className="truncate group-hover:text-[var(--accent-strong)] transition-colors">{item.name}</span>
                               </li>
                             ))

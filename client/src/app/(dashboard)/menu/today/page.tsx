@@ -106,7 +106,7 @@ export default function TodayMenuPage() {
                     key={idx}
                     className="p-4 bg-[var(--surface-2)] border border-[var(--border)] hover:border-[var(--accent)]/30 rounded-2xl flex items-center gap-4 transition-all duration-200 group"
                   >
-                    <FoodIndicator isVeg={true} />
+                    <FoodIndicator isVeg={item.isVeg !== false} />
                     <span className="text-sm font-semibold text-[var(--ink)] group-hover:text-[var(--accent-strong)] transition-colors">{item.name}</span>
                   </div>
                 ))}
@@ -124,16 +124,16 @@ export default function TodayMenuPage() {
         <Card padding="lg">
           <h3 className="text-sm font-bold text-[var(--ink)] flex items-center gap-2 uppercase tracking-wide mb-3 font-display">
             <Flame size={16} className="text-[var(--accent)]" />
-            Special Paid Extras
+            Non-Veg Served Today
           </h3>
           <p className="text-xs text-[var(--ink-muted)] mb-5">
-            Special additions prepared for today's {selectedMeal} that can be purchased extra.
+            Non-vegetarian options prepared for today's {selectedMeal} (Included with regular mess menu).
           </p>
 
           <hr className="border-[var(--border)] mb-5" />
 
           {loading ? (
-            <div className="py-10 text-center text-[var(--ink-muted)] text-xs">Loading extras...</div>
+            <div className="py-10 text-center text-[var(--ink-muted)] text-xs">Loading menu...</div>
           ) : nonVegItems.length > 0 ? (
             <div className="space-y-3">
               {nonVegItems.map((item, idx) => (
@@ -142,11 +142,11 @@ export default function TodayMenuPage() {
                   className="p-4 rounded-2xl bg-[var(--surface-2)] border border-[var(--border)] hover:border-[var(--accent)]/30 transition-all duration-200 flex items-center justify-between group"
                 >
                   <div className="flex items-center gap-3">
-                    <FoodIndicator isVeg={item.isVeg} />
+                    <FoodIndicator isVeg={false} />
                     <span className="text-xs font-semibold text-[var(--ink)] group-hover:text-[var(--accent-strong)] transition-colors">{item.name}</span>
                   </div>
-                  <Badge variant="muted" className="text-xs font-extrabold px-3 py-1 bg-[var(--surface)] text-[var(--ink)] border border-[var(--border)]">
-                    ₹{item.cost}
+                  <Badge variant="muted" className="text-xs font-bold px-3 py-1 bg-[var(--surface)] text-rose-500 border border-rose-500/20">
+                    Included
                   </Badge>
                 </div>
               ))}
@@ -154,7 +154,7 @@ export default function TodayMenuPage() {
           ) : (
             <div className="flex items-start gap-2.5 p-4 bg-[var(--surface-2)] border border-[var(--border)] rounded-2xl text-xs text-[var(--ink-muted)]">
               <AlertCircle size={15} className="text-[var(--ink-muted)]/65 flex-shrink-0 mt-0.5" />
-              <span>No non-veg extras listed for today's {selectedMeal}.</span>
+              <span>No non-veg items listed for today's {selectedMeal}.</span>
             </div>
           )}
         </Card>

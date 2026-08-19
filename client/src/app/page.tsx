@@ -409,16 +409,17 @@ export default function LandingPage() {
               ) : activeVegMenu && activeVegMenu.items.length > 0 ? (
                 <div className="space-y-6">
                   
-                  {/* Veg Menu Items */}
+                  {/* Menu Items */}
                   <div className="space-y-3">
                     <h4 className="text-xs font-semibold text-[var(--ink-muted)] uppercase tracking-wider flex items-center gap-2">
                       <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
-                      Standard Menu (Veg)
+                      Today's Served Menu
                     </h4>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                       {activeVegMenu.items.map((item, idx) => {
                         const itemRating = getItemRating(item.name);
                         const ratingCount = getItemRatingCount(item.name);
+                        const isVeg = item.isVeg !== false;
 
                         return (
                           <div
@@ -426,10 +427,10 @@ export default function LandingPage() {
                             className="p-4 rounded-2xl bg-[var(--surface-2)] border border-[var(--border)] hover:border-[var(--accent)]/30 transition-all duration-200 flex items-center justify-between group"
                           >
                             <div className="flex items-center gap-3">
-                              <FoodIndicator isVeg={true} />
+                              <FoodIndicator isVeg={isVeg} />
                               <div>
                                 <div className="text-sm font-semibold text-[var(--ink)] group-hover:text-[var(--accent-strong)] transition-colors">{item.name}</div>
-                                <div className="text-[10px] text-[var(--ink-muted)] mt-0.5">Vegetarian Standard</div>
+                                <div className="text-[10px] text-[var(--ink-muted)] mt-0.5">{isVeg ? 'Vegetarian' : 'Non-Vegetarian'}</div>
                               </div>
                             </div>
                             
@@ -458,41 +459,6 @@ export default function LandingPage() {
                       })}
                     </div>
                   </div>
-
-                  {/* Non-Veg Menu Extras (if any exists for today/meal) */}
-                  {activeNonVegMenu && activeNonVegMenu.items && activeNonVegMenu.items.length > 0 && (
-                    <div className="space-y-3 pt-6 border-t border-[var(--border)]">
-                      <h4 className="text-xs font-semibold text-[var(--ink-muted)] uppercase tracking-wider flex items-center gap-2">
-                        <span className="w-1.5 h-1.5 rounded-full bg-[var(--accent)]" />
-                        Available Extras (Special Paid Menu)
-                      </h4>
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                        {activeNonVegMenu.items.map((item, idx) => {
-                          const itemRating = getItemRating(item.name);
-                          const ratingCount = getItemRatingCount(item.name);
-
-                          return (
-                            <div
-                              key={idx}
-                              className="p-4 rounded-2xl bg-[var(--surface-2)] border border-[var(--border)] hover:border-[var(--accent)]/30 transition-all duration-200 flex items-center justify-between group"
-                            >
-                              <div className="flex items-center gap-3">
-                                <FoodIndicator isVeg={!!item.isVeg} />
-                                <div>
-                                  <div className="text-sm font-semibold text-[var(--ink)] group-hover:text-[var(--accent-strong)] transition-colors">{item.name}</div>
-                                  <div className="text-xs font-bold text-[var(--ink-muted)] mt-1">₹{item.cost}</div>
-                                </div>
-                              </div>
-                              <div className="flex flex-col items-end">
-                                {itemRating ? (
-                                  <>
-                                    <div className="flex items-center gap-1 text-amber-500 font-bold text-sm">
-                                      <Star size={13} fill="currentColor" />
-                                      {itemRating.toFixed(1)}
-                                    </div>
-                                    <div className="text-[9px] text-[var(--ink-muted)] font-medium mt-0.5">{ratingCount} reviews</div>
-                                  </>
-                                ) : (
                                   <>
                                     <div className="flex items-center gap-1 text-[var(--ink-muted)]/50 text-xs font-medium">
                                       <Star size={12} />

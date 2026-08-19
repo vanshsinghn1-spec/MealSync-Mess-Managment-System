@@ -24,6 +24,7 @@ const vegMenuSchema = new mongoose.Schema({
   items: [{
     name: { type: String, required: true, trim: true },
     icon: { type: String, default: '🍽️' },
+    isVeg: { type: Boolean, default: true },
   }],
 }, {
   timestamps: true,

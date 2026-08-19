@@ -33,122 +33,45 @@ router.get('/today', async (req, res, next) => {
       meal: currentMeal,
     }).populate('messId', 'name slug');
 
-    // Generate special paid menu items for today
-    const specialPrices = {
-      "Boiled Egg": 10,
-      "Omelette Only": 20,
-      "Omelette only": 20,
-      "Omelette": 20,
-      "Bread Omelette": 30,
-      "Pav Bhaji": 40,
-      "Dahi Puri": 40,
-      "Egg Burji": 30,
-      "Egg burji": 30,
-      "Egg Curry": 30,
-      "Egg curry": 30,
-      "Veg Manchurian": 60,
-      "Mushroom Curry": 60,
-      "Baby corn Manchurian": 60,
-      "Kadai Chicken": 100,
-      "Chilli Chicken": 80,
-      "Chicken Curry": 100,
-      "Chicken 65": 60,
-      "Butter Chicken": 100,
-      "Butter Chicken Masala": 100
-    };
-
-    const getSpecialItemDetails = (name) => {
-      const price = specialPrices[name] || 0;
-      let icon = '🍲';
-      let isVeg = false;
-
-      const lowerName = name.toLowerCase();
-
-      // Determine if Veg
-      if (
-        lowerName.includes('pav bhaji') ||
-        lowerName.includes('dahi puri') ||
-        lowerName.includes('veg manchurian') ||
-        lowerName.includes('mushroom curry') ||
-        lowerName.includes('baby corn manchurian')
-      ) {
-        isVeg = true;
-      }
-
-      if (lowerName.includes('boiled egg')) {
-        icon = '🥚';
-      } else if (lowerName.includes('omelette')) {
-        icon = '🍳';
-      } else if (lowerName.includes('chicken') || lowerName.includes('65')) {
-        icon = '🍗';
-      } else if (lowerName.includes('manchurian') && lowerName.includes('veg')) {
-        icon = '🥦';
-      } else if (lowerName.includes('bhaji')) {
-        icon = '🥯';
-      }
-      return { name, cost: price, icon, isVeg };
-    };
-
-    const getSpecialMenuForDay = (wType, dName, ml) => {
-      const menu = {
-        even: {
-          Monday: { breakfast: ["Boiled Egg"], snacks: ["Pav Bhaji"], dinner: ["Egg Burji"] },
-          Tuesday: { breakfast: ["Omelette Only"], dinner: ["Chilli Chicken"] },
-          Wednesday: { breakfast: ["Boiled Egg"], snacks: ["Bread Omelette"] },
-          Thursday: { breakfast: ["Boiled Egg"], dinner: ["Kadai Chicken"] },
-          Friday: { breakfast: ["Omelette Only"], dinner: ["Veg Manchurian"] },
-          Saturday: { breakfast: ["Boiled Egg"], dinner: ["Mushroom Curry"] },
-          Sunday: { breakfast: ["Boiled Egg"], lunch: ["Butter Chicken"] },
-        },
-        odd: {
-          Monday: { breakfast: ["Boiled Egg"], dinner: ["Egg Curry"] },
-          Tuesday: { breakfast: ["Omelette Only"], dinner: ["Chicken Curry"] },
-          Wednesday: { breakfast: ["Boiled Egg"], snacks: ["Bread Omelette"], dinner: ["Mushroom Curry"] },
-          Thursday: { breakfast: ["Boiled Egg"], dinner: ["Kadai Chicken"] },
-          Friday: { breakfast: ["Omelette only"], dinner: ["Chicken 65"] },
-          Saturday: { breakfast: ["Boiled Egg"], snacks: ["Dahi Puri"], dinner: ["Baby corn Manchurian"] },
-          Sunday: { breakfast: ["Boiled Egg"], lunch: ["Butter Chicken"] },
-        }
-      };
-
-      const items = menu[wType]?.[dName]?.[ml] || [];
-      return items.map(getSpecialItemDetails);
-    };
-
-    const specialItems = getSpecialMenuForDay(weekType, dayName, currentMeal);
-
-    // Merge special items into nonVegMenus list for each mess
     const activeMesses = await MessHall.find({ isActive: true });
     const nonVegMenus = [];
 
     for (const mess of activeMesses) {
-      // Find if we already have non-veg menu in DB for this mess
       const existingMenu = dbNonVegMenus.find(m => m.messId && (m.messId._id.toString() === mess._id.toString() || m.messId.toString() === mess._id.toString()));
+      const vegMenuForMess = vegMenus.find(m => m.messId && (m.messId._id.toString() === mess._id.toString() || m.messId.toString() === mess._id.toString()));
       
-      const mergedItems = [];
-      
-      // Add special paid menu items first
-      specialItems.forEach(item => {
-        mergedItems.push(item);
-      });
+      const nonVegItems = [];
+      if (vegMenuForMess && vegMenuForMess.items) {
+        vegMenuForMess.items.forEach(item => {
+          if (item.isVeg === false) {
+            nonVegItems.push({
+              name: item.name,
+              cost: 0,
+              icon: item.icon || '🥚',
+              isVeg: false,
+              _id: item._id
+            });
+          }
+        });
+      }
 
-      // Add user/official created items next (avoiding duplicates if they add the same name)
       if (existingMenu && existingMenu.items) {
         existingMenu.items.forEach(existing => {
-          if (!mergedItems.some(i => i.name.toLowerCase() === existing.name.toLowerCase())) {
-            mergedItems.push({
+          if (!nonVegItems.some(i => i.name.toLowerCase() === existing.name.toLowerCase())) {
+            nonVegItems.push({
               name: existing.name,
-              cost: existing.cost,
+              cost: 0,
               icon: existing.icon || '🍗',
+              isVeg: false,
               _id: existing._id
             });
           }
         });
       }
 
-      if (mergedItems.length > 0) {
+      if (nonVegItems.length > 0) {
         nonVegMenus.push({
-          _id: existingMenu ? existingMenu._id : `temp-special-${mess._id}`,
+          _id: existingMenu ? existingMenu._id : `free-nonveg-${mess._id}`,
           messId: {
             _id: mess._id,
             name: mess.name,
@@ -156,7 +79,7 @@ router.get('/today', async (req, res, next) => {
           },
           date: today,
           meal: currentMeal,
-          items: mergedItems
+          items: nonVegItems
         });
       }
     }
