@@ -35,6 +35,19 @@ export default function WeeklyMenuPage() {
     }
   }, [userMessId]);
 
+  // Fetch current active weekType dynamically
+  useEffect(() => {
+    async function fetchActiveWeekType() {
+      try {
+        const res = await api.get("/menu/today");
+        if (res.data && res.data.weekType) {
+          setWeekType(res.data.weekType);
+        }
+      } catch (e) {}
+    }
+    fetchActiveWeekType();
+  }, []);
+
   useEffect(() => {
     async function loadWeekly() {
       try {

@@ -63,9 +63,14 @@ function getWeekNumber(date) {
 
 /**
  * Get current week type (odd/even)
+ * Mess week cycle starts on Sunday.
  */
 function getWeekType(date) {
-  const weekNum = getWeekNumber(date || getISTTime());
+  const d = new Date(date || getISTTime());
+  if (d.getDay() === 0) {
+    d.setDate(d.getDate() + 1);
+  }
+  const weekNum = getWeekNumber(d);
   return weekNum % 2 === 0 ? 'odd' : 'even';
 }
 
