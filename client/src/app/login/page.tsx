@@ -78,20 +78,21 @@ export default function LoginPage() {
           className="w-full max-w-[400px]"
         >
           {/* Logo */}
-          <div className="mb-12">
-            <div className="h-12 w-12 rounded-2xl bg-[var(--accent)] flex items-center justify-center">
-              <UtensilsCrossed size={24} className="text-white" />
+          <div className="mb-6 sm:mb-10">
+            <div className="h-10 w-10 sm:h-12 sm:w-12 rounded-2xl bg-[var(--accent)] flex items-center justify-center">
+              <UtensilsCrossed size={20} className="text-white sm:hidden" />
+              <UtensilsCrossed size={24} className="text-white hidden sm:block" />
             </div>
           </div>
 
-          <h1 className="font-display text-[34px] font-semibold tracking-tight text-[var(--ink)] leading-[1.05]">
+          <h1 className="font-display text-2xl sm:text-[34px] font-semibold tracking-tight text-[var(--ink)] leading-snug sm:leading-[1.05]">
             Welcome back
           </h1>
-          <p className="text-[var(--ink-muted)] mt-2 text-[15px]">
+          <p className="text-[var(--ink-muted)] mt-1.5 text-xs sm:text-[15px]">
             Sign in to manage your mess details.
           </p>
 
-          <form onSubmit={handleSubmit} className="mt-9 space-y-4">
+          <form onSubmit={handleSubmit} className="mt-6 sm:mt-9 space-y-4">
             {/* Email Field */}
             <div>
               <label className="text-sm font-medium text-[var(--ink)] mb-1.5 block">

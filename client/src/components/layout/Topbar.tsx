@@ -14,12 +14,12 @@ export function Topbar() {
   const greeting = hour < 12 ? "Good morning" : hour < 17 ? "Good afternoon" : "Good evening";
 
   return (
-    <header className="flex items-start justify-between gap-6 mb-8">
+    <header className="flex items-start justify-between gap-4 mb-6 sm:mb-8">
       <div>
-        <h1 className="font-display text-[clamp(28px,3vw,38px)] font-semibold leading-tight text-[var(--ink)]">
+        <h1 className="font-display text-xl sm:text-3xl font-semibold leading-tight text-[var(--ink)]">
           {greeting}, {firstName}.
         </h1>
-        <p className="text-sm text-[var(--ink-muted)] mt-1">
+        <p className="text-xs sm:text-sm text-[var(--ink-muted)] mt-1">
           Manage your mess, menus, and meals — all in one place.
         </p>
       </div>

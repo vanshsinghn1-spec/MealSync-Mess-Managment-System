@@ -19,7 +19,7 @@ export function Tabs({ items, value, onChange, className }: TabsProps) {
   return (
     <div
       className={cn(
-        "inline-flex items-center gap-1 p-1 rounded-full bg-[var(--surface-2)] border border-[var(--border)]",
+        "inline-flex items-center gap-1 p-1 rounded-2xl sm:rounded-full bg-[var(--surface-2)] border border-[var(--border)] max-w-full overflow-x-auto no-scrollbar shrink-0",
         className
       )}
     >

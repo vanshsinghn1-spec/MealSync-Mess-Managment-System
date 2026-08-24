@@ -212,32 +212,33 @@ export default function LandingPage() {
     { value: "snacks", label: "Snacks", icon: <Coffee size={14} /> },
     { value: "dinner", label: "Dinner", icon: <Moon size={14} /> },
   ];
-
   return (
     <div className="min-h-screen bg-[var(--bg)] text-[var(--ink)] font-sans overflow-x-hidden selection:bg-[var(--accent-soft)] transition-colors duration-200">
       
       {/* Floating Navbar */}
-      <header className="fixed top-4 left-0 right-0 z-50 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
-        <div className="h-14 sm:h-16 px-4 sm:px-6 rounded-full border border-[var(--border)] bg-[var(--surface)]/80 backdrop-blur-md flex items-center justify-between shadow-card">
-          <div className="flex items-center gap-3">
-            <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-[var(--accent)] flex items-center justify-center shadow-sm">
-              <UtensilsCrossed size={18} className="text-white" />
+      <header className="fixed top-2.5 sm:top-4 left-0 right-0 z-50 px-2.5 sm:px-6 lg:px-8 max-w-7xl mx-auto">
+        <div className="h-14 sm:h-16 px-3 sm:px-6 rounded-full border border-[var(--border)] bg-[var(--surface)]/90 backdrop-blur-md flex items-center justify-between shadow-card">
+          <Link href="/" className="flex items-center gap-2 sm:gap-3 shrink-0">
+            <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-[var(--accent)] flex items-center justify-center shadow-sm shrink-0">
+              <UtensilsCrossed size={16} className="text-white sm:hidden" />
+              <UtensilsCrossed size={18} className="text-white hidden sm:block" />
             </div>
             <div>
-              <h1 className="text-sm sm:text-base font-bold tracking-tight text-[var(--ink)]">MealSync</h1>
-              <p className="text-[9px] text-[var(--ink-muted)] font-medium tracking-wider uppercase">IIITDM Kancheepuram</p>
+              <h1 className="text-sm sm:text-base font-bold tracking-tight text-[var(--ink)] leading-none">MealSync</h1>
+              <p className="text-[9px] text-[var(--ink-muted)] font-medium tracking-wider uppercase hidden sm:block mt-0.5">IIITDM Kancheepuram</p>
             </div>
-          </div>
+          </Link>
           
-          <div className="flex items-center gap-2 sm:gap-4">
+          <div className="flex items-center gap-1.5 sm:gap-3 shrink-0">
             {/* Mess Menu PDF link */}
             <a href="/mess-menu.pdf" target="_blank" rel="noopener noreferrer">
               <Button
                 variant="ghost"
                 size="sm"
-                className="h-9 px-3.5 text-xs sm:text-sm font-semibold text-[var(--ink-muted)] hover:text-[var(--ink)] hover:bg-[var(--surface-2)] rounded-full transition-all"
+                className="h-8 sm:h-9 px-2 sm:px-3 text-xs sm:text-sm font-semibold text-[var(--ink-muted)] hover:text-[var(--ink)] hover:bg-[var(--surface-2)] rounded-full transition-all flex items-center gap-1 shrink-0"
               >
-                Mess Menu PDF
+                <span className="hidden sm:inline">Mess Menu PDF</span>
+                <span className="sm:hidden text-[11px] font-bold">PDF</span>
               </Button>
             </a>
 
@@ -247,15 +248,16 @@ export default function LandingPage() {
               size="iconSm"
               onClick={toggleTheme}
               title="Toggle theme"
-              className="text-[var(--ink-muted)] hover:text-[var(--ink)]"
+              className="h-8 w-8 sm:h-9 sm:w-9 rounded-full text-[var(--ink-muted)] hover:text-[var(--ink)] shrink-0"
             >
               {theme === "dark" ? <Sun size={14} /> : <Moon size={14} />}
             </Button>
 
-            <Link href="/login">
-              <Button variant="accent" size="sm" className="h-9 text-xs sm:text-sm font-semibold">
-                Log In
-                <ArrowRight size={14} />
+            {/* Log In Button */}
+            <Link href="/login" className="shrink-0">
+              <Button variant="accent" size="sm" className="h-8 sm:h-9 px-3 sm:px-4 text-xs sm:text-sm font-semibold rounded-full shrink-0 flex items-center gap-1">
+                <span>Log In</span>
+                <ArrowRight size={14} className="hidden sm:inline" />
               </Button>
             </Link>
           </div>
@@ -265,48 +267,36 @@ export default function LandingPage() {
       {/* Hero Banner Section */}
       <section className="relative w-full">
         <DarkPanel
-          className="w-full min-h-[500px] sm:min-h-[580px] flex items-center"
-          radius="rounded-b-[40px] sm:rounded-b-[56px]"
+          className="w-full min-h-[420px] sm:min-h-[560px] flex items-center"
+          radius="rounded-b-[32px] sm:rounded-b-[56px]"
           glow={true}
         >
-          <div className="max-w-7xl mx-auto px-6 sm:px-10 lg:px-16 pt-28 pb-16 text-center text-white flex flex-col items-center">
-            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/8 border border-white/10 backdrop-blur-md mb-6">
+          <div className="max-w-7xl mx-auto px-4 sm:px-10 lg:px-16 pt-24 sm:pt-28 pb-12 sm:pb-16 text-center text-white flex flex-col items-center">
+            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/10 border border-white/15 backdrop-blur-md mb-4 sm:mb-6">
               <Sparkles size={12} className="text-[#B6CFC0] animate-pulse" />
-              <span className="text-[10px] tracking-wide text-white/85 uppercase font-semibold">
+              <span className="text-[10px] tracking-wide text-white/90 uppercase font-semibold">
                 Live Hostel Mess Portal
               </span>
             </div>
             
-            <h2 className="font-display text-[40px] sm:text-[56px] lg:text-[72px] leading-[1.05] tracking-tight max-w-4xl">
-              Know what's cooking.
-              <br />
-              <span className="text-white/50">Rate what</span>{" "}
-              <span
-                style={{
-                  backgroundImage: "linear-gradient(120deg, #B6CFC0 0%, #8FB39C 55%, #5B7C6A 100%)",
-                  WebkitBackgroundClip: "text",
-                  backgroundClip: "text",
-                  WebkitTextFillColor: "transparent",
-                  color: "transparent",
-                }}
-              >
-                matters.
-              </span>
+            <h2 className="font-display text-2xl sm:text-4xl lg:text-6xl font-bold leading-snug sm:leading-[1.08] tracking-tight max-w-4xl px-2">
+              Real-time dining dashboard for hostel residents & officials
             </h2>
-            
-            <p className="text-white/65 text-sm sm:text-base lg:text-lg mt-6 max-w-xl leading-relaxed">
-              View daily menus, check live student ratings, track nutrition, and submit feedback dynamically in real time.
+
+            <p className="text-white/70 text-xs sm:text-base lg:text-lg max-w-2xl mt-3 sm:mt-6 font-normal leading-relaxed px-2">
+              View today's live menu, track ratings, vote on daily meals, and access dining reallocation requests seamlessly.
             </p>
 
-            <div className="flex flex-wrap gap-3 mt-8 justify-center">
+            <div className="flex flex-wrap items-center justify-center gap-2.5 sm:gap-4 mt-6 sm:mt-8">
               <a href="#menu-dashboard">
-                <Button variant="accent" size="md" className="h-11 px-5 text-sm font-semibold">
+                <Button variant="accent" size="lg" className="h-10 sm:h-12 px-5 sm:px-6 text-xs sm:text-sm font-semibold rounded-full shadow-lg">
                   View Today's Menu
+                  <ChevronRight size={16} />
                 </Button>
               </a>
               {!session && (
                 <Link href="/login">
-                  <Button variant="outline" size="md" className="h-11 px-5 text-sm font-medium border-white/12 hover:bg-white/8 text-white bg-transparent">
+                  <Button variant="outline" size="lg" className="h-10 sm:h-12 px-5 sm:px-6 text-xs sm:text-sm font-semibold rounded-full border-white/20 text-white hover:bg-white/10 bg-transparent">
                     Student Login
                   </Button>
                 </Link>
@@ -317,24 +307,24 @@ export default function LandingPage() {
       </section>
 
       {/* Main Content Dashboard */}
-      <main id="menu-dashboard" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 scroll-mt-24">
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+      <main id="menu-dashboard" className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-10 sm:py-16 scroll-mt-24">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 sm:gap-8">
           
           {/* Menu display (Left 2 Columns) */}
           <div className="lg:col-span-2 space-y-6">
             
             {/* Control Bar: Mess Toggle & Meal Selector */}
-            <Card variant="flat" className="p-5 space-y-4">
+            <Card variant="flat" className="p-4 sm:p-5 space-y-4">
               {/* Mess Switcher Tab */}
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                 <div>
                   <h3 className="text-xs font-semibold text-[var(--ink-muted)] uppercase tracking-wider">Select Dining Hall</h3>
                   <p className="text-[11px] text-[var(--ink-muted)]/80 mt-0.5">Toggle to view menus from different halls</p>
                 </div>
-                <div className="inline-flex bg-[var(--surface-2)] p-1 rounded-full border border-[var(--border)] self-start sm:self-auto">
+                <div className="grid grid-cols-2 w-full sm:w-auto p-1 bg-[var(--surface-2)] rounded-2xl sm:rounded-full border border-[var(--border)] gap-1 shrink-0">
                   <button
                     onClick={() => setSelectedMess("mess-1")}
-                    className={`px-4.5 py-1.5 rounded-full text-xs font-semibold transition-all duration-200 ${
+                    className={`px-3 sm:px-4.5 py-1.5 rounded-xl sm:rounded-full text-xs font-semibold transition-all duration-200 truncate ${
                       selectedMess === "mess-1"
                         ? "bg-[var(--surface)] text-[var(--ink)] shadow-card"
                         : "text-[var(--ink-muted)] hover:text-[var(--ink)]"
@@ -344,7 +334,7 @@ export default function LandingPage() {
                   </button>
                   <button
                     onClick={() => setSelectedMess("mess-2")}
-                    className={`px-4.5 py-1.5 rounded-full text-xs font-semibold transition-all duration-200 ${
+                    className={`px-3 sm:px-4.5 py-1.5 rounded-xl sm:rounded-full text-xs font-semibold transition-all duration-200 truncate ${
                       selectedMess === "mess-2"
                         ? "bg-[var(--surface)] text-[var(--ink)] shadow-card"
                         : "text-[var(--ink-muted)] hover:text-[var(--ink)]"
@@ -358,7 +348,7 @@ export default function LandingPage() {
               <hr className="border-[var(--border)]" />
 
               {/* Meal Selector Buttons */}
-              <div className="flex flex-wrap gap-2">
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
                 {[
                   { id: "breakfast", label: "Breakfast", desc: "07:30 - 09:00", icon: <Sun size={15} /> },
                   { id: "lunch", label: "Lunch", desc: "12:00 - 14:00", icon: <CloudSun size={15} /> },
@@ -368,13 +358,13 @@ export default function LandingPage() {
                   <button
                     key={meal.id}
                     onClick={() => setSelectedMeal(meal.id)}
-                    className={`flex-1 min-w-[110px] p-3 rounded-2xl border transition-all duration-200 text-left group ${
+                    className={`p-2.5 sm:p-3 rounded-2xl border transition-all duration-200 text-left group ${
                       selectedMeal === meal.id
                         ? "bg-[var(--surface-2)] border-[var(--accent)]/50 text-[var(--ink)] shadow-card"
                         : "bg-transparent border-[var(--border)] text-[var(--ink-muted)] hover:text-[var(--ink)] hover:border-[var(--accent)]/20"
                     }`}
                   >
-                    <div className="flex items-center gap-1.5 text-sm font-semibold group-hover:text-[var(--ink)] transition-colors">
+                    <div className="flex items-center gap-1.5 text-xs sm:text-sm font-semibold group-hover:text-[var(--ink)] transition-colors">
                       <span className={selectedMeal === meal.id ? "text-[var(--accent)]" : "text-[var(--ink-muted)] group-hover:text-[var(--ink)]"}>
                         {meal.icon}
                       </span>
@@ -387,15 +377,15 @@ export default function LandingPage() {
             </Card>
 
             {/* Menu Items Card Grid */}
-            <Card padding="lg" className="min-h-[380px] relative">
+            <Card padding="lg" className="min-h-[380px] relative p-4 sm:p-6">
               <div className="flex items-center justify-between mb-6">
                 <div>
-                  <h3 className="text-lg font-bold text-[var(--ink)] tracking-tight">{getDayLabel()}</h3>
+                  <h3 className="text-base sm:text-lg font-bold text-[var(--ink)] tracking-tight">{getDayLabel()}</h3>
                   <p className="text-xs text-[var(--ink-muted)] capitalize mt-0.5">
                     Listing all dishes for today's {selectedMeal}
                   </p>
                 </div>
-                <Badge variant="default" className="text-[10px] uppercase font-bold tracking-wider px-2.5 py-1">
+                <Badge variant="default" className="text-[10px] uppercase font-bold tracking-wider px-2.5 py-1 shrink-0">
                   Live Menu
                 </Badge>
               </div>
@@ -416,7 +406,7 @@ export default function LandingPage() {
                       <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
                       Today's Served Menu
                     </h4>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                       {activeVegMenu.items.map((item, idx) => {
                         const itemRating = getItemRating(item.name);
                         const ratingCount = getItemRatingCount(item.name);
@@ -425,21 +415,21 @@ export default function LandingPage() {
                         return (
                           <div
                             key={idx}
-                            className="p-4 rounded-2xl bg-[var(--surface-2)] border border-[var(--border)] hover:border-[var(--accent)]/30 transition-all duration-200 flex items-center justify-between group"
+                            className="p-3.5 sm:p-4 rounded-2xl bg-[var(--surface-2)] border border-[var(--border)] hover:border-[var(--accent)]/30 transition-all duration-200 flex items-center justify-between gap-3 group min-w-0"
                           >
-                            <div className="flex items-center gap-3">
+                            <div className="flex items-center gap-3 min-w-0 flex-1">
                               <FoodIndicator isVeg={isVeg} />
-                              <div>
-                                <div className="text-sm font-semibold text-[var(--ink)] group-hover:text-[var(--accent-strong)] transition-colors">{item.name}</div>
+                              <div className="min-w-0 flex-1">
+                                <div className="text-xs sm:text-sm font-semibold text-[var(--ink)] group-hover:text-[var(--accent-strong)] transition-colors break-words">{item.name}</div>
                                 <div className="text-[10px] text-[var(--ink-muted)] mt-0.5">{isVeg ? 'Vegetarian' : 'Non-Vegetarian'}</div>
                               </div>
                             </div>
                             
                             {/* Rating badge */}
-                            <div className="flex flex-col items-end">
+                            <div className="flex flex-col items-end shrink-0">
                               {itemRating ? (
                                 <>
-                                  <div className="flex items-center gap-1 text-amber-500 font-bold text-sm">
+                                  <div className="flex items-center gap-1 text-amber-500 font-bold text-xs sm:text-sm">
                                     <Star size={13} fill="currentColor" />
                                     {itemRating.toFixed(1)}
                                   </div>
