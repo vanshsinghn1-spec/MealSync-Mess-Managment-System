@@ -112,21 +112,3 @@ npm run dev
 ```
 
 The frontend application will be accessible at `http://localhost:3000`. The backend API runs on `http://localhost:5000`.
-
----
-
-## Future Roadmap & Integration Plans
-
-### Automated "SAC - Mess Affairs" Email Announcement Parser
-MealSync plans to feature real-time automatic ingestion of official hostel mess announcements sent by **SAC - Mess Affairs** to student `@iiitdm.ac.in` Gmail addresses (such as 1-day temporary menu changes, emergency mess closures, or maintenance notices).
-
-The backend service module is structured in [`server/src/services/sacEmailService.js`](file:///c:/Users/admin/Desktop/Desktop/hostel_mess/server/src/services/sacEmailService.js) to support two automated architectural options:
-
-1. **Option A: Inbound Email Webhook Parsing (Recommended)**
-   * **Workflow**: A Gmail forwarding rule forwards emails sent by `sac-mess@iiitdm.ac.in` to an inbound webhook address (e.g. via SendGrid Inbound Parse or Postmark).
-   * **Endpoint**: `/api/notifications/inbound-email` processes incoming HTTP POST requests, extracts the email title and body text, and broadcasts it to the dashboard and notifications tab.
-
-2. **Option B: Google Cloud & Gmail API Integration**
-   * **Workflow**: Integrates Google Cloud OAuth2 / Service Account credentials with Google Pub/Sub push notifications.
-   * **Service**: Automatically queries Gmail API for unread messages matching `from:sac-mess@iiitdm.ac.in` and creates dynamic notification cards.
-
