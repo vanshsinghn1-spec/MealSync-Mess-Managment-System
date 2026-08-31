@@ -3,13 +3,15 @@ const VegMenu = require('../models/VegMenu');
 const NonVegMenu = require('../models/NonVegMenu');
 const { authenticate, roleGuard } = require('../middleware/auth');
 const { getCurrentMeal, getWeekType, getDayName, getISTDate } = require('../utils/timeUtils');
+const cacheMiddleware = require('../middleware/cacheMiddleware');
+const { flushCache } = require('../utils/cache');
 
 const router = express.Router();
 
 const MessHall = require('../models/MessHall');
 
 // GET /api/menu/today — Get today's menu (public)
-router.get('/today', async (req, res, next) => {
+router.get('/today', cacheMiddleware(3600), async (req, res, next) => {
   try {
     const today = getISTDate();
     const currentMeal = req.query.meal || getCurrentMeal();
@@ -98,7 +100,7 @@ router.get('/today', async (req, res, next) => {
 });
 
 // GET /api/menu/weekly/:messId — Full weekly menu for a mess
-router.get('/weekly/:messId', async (req, res, next) => {
+router.get('/weekly/:messId', cacheMiddleware(3600), async (req, res, next) => {
   try {
     const { messId } = req.params;
     const weekType = req.query.weekType || getWeekType();
@@ -133,7 +135,7 @@ router.get('/weekly/:messId', async (req, res, next) => {
 });
 
 // GET /api/menu/non-veg/today — Today's non-veg across all messes
-router.get('/non-veg/today', async (req, res, next) => {
+router.get('/non-veg/today', cacheMiddleware(3600), async (req, res, next) => {
   try {
     const today = getISTDate();
     const startOfDay = new Date(today);
@@ -169,6 +171,7 @@ router.post('/non-veg', authenticate, roleGuard('mess_official', 'admin'), async
     });
 
     await menu.save();
+    await flushCache();
     const populated = await menu.populate('messId', 'name slug');
     res.status(201).json(populated);
   } catch (error) {
@@ -189,6 +192,7 @@ router.put('/veg/:id', authenticate, roleGuard('admin'), async (req, res, next) 
     if (!menu) {
       return res.status(404).json({ error: 'Menu not found' });
     }
+    await flushCache();
     res.json(menu);
   } catch (error) {
     next(error);
