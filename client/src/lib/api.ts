@@ -30,10 +30,13 @@ api.interceptors.request.use(async (config) => {
           localStorage.setItem("mealsync-token", accessToken);
           return accessToken as string;
         }
-        return null;
-      }).finally(() => {
-        // Allow retry after 30 seconds if the first attempt found no token
+        // No token found — clear the promise after 30s to allow retry
         setTimeout(() => { sessionCheckPromise = null; }, 30000);
+        return null;
+      }).catch(() => {
+        // Clear immediately on rejection so the next request can retry
+        sessionCheckPromise = null;
+        return null;
       });
     }
 

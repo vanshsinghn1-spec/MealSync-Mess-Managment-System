@@ -33,6 +33,7 @@ export default function WeeklyMenuPage() {
 
   // Use the today menu hook to get the current active week type (avoids a separate fetch)
   const todayMenu = useTodayMenu();
+  const weekTypeResolved = !todayMenu.isLoading;
   useEffect(() => {
     if (todayMenu.weekType) {
       setWeekType(todayMenu.weekType as "odd" | "even");
@@ -50,8 +51,8 @@ export default function WeeklyMenuPage() {
     dbMessId = userMessId._id;
   }
 
-  // SWR hook: fetches and caches the weekly grid for this mess + weekType combination
-  const { weekly, isLoading } = useWeeklyMenu(dbMessId, weekType, !!session);
+  // SWR hook: gated until weekType is resolved from the server to avoid fetching the wrong week
+  const { weekly, isLoading } = useWeeklyMenu(dbMessId, weekType, !!session && weekTypeResolved);
 
   const days = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
   const meals = ["breakfast", "lunch", "snacks", "dinner"];

@@ -146,7 +146,7 @@ router.get('/today/all', cacheMiddleware(3600), async (req, res, next) => {
               nonVegItems.push({
                 name: item.name,
                 cost: 0,
-                icon: item.icon || '',
+                icon: item.icon || '🥚',
                 isVeg: false,
                 _id: item._id
               });
@@ -160,7 +160,7 @@ router.get('/today/all', cacheMiddleware(3600), async (req, res, next) => {
               nonVegItems.push({
                 name: existing.name,
                 cost: 0,
-                icon: existing.icon || '',
+                icon: existing.icon || '🍗',
                 isVeg: false,
                 _id: existing._id
               });
