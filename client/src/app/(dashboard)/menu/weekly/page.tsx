@@ -2,13 +2,11 @@
 
 import { useSession } from "next-auth/react";
 import { useState, useEffect } from "react";
-import api from "@/lib/api";
-import { CalendarDays, HelpCircle, RefreshCw, Sun, CloudSun, Coffee, Moon } from "lucide-react";
+import { CalendarDays, HelpCircle, Sun, CloudSun, Coffee, Moon } from "lucide-react";
 import FoodIndicator from "@/components/layout/FoodIndicator";
-import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/Card";
-import { Button } from "@/components/ui/Button";
-import { Badge } from "@/components/ui/Badge";
+import { Card } from "@/components/ui/Card";
 import { Tabs } from "@/components/ui/Tabs";
+import { useTodayMenu, useWeeklyMenu } from "@/hooks/useMenuData";
 
 const getMealHeaderIcon = (meal: string) => {
   switch (meal) {
@@ -25,8 +23,6 @@ export default function WeeklyMenuPage() {
 
   const [selectedMess, setSelectedMess] = useState<"mess-1" | "mess-2">("mess-1");
   const [weekType, setWeekType] = useState<"odd" | "even">("odd");
-  const [weeklyMenu, setWeeklyMenu] = useState<any>(null);
-  const [loading, setLoading] = useState(true);
 
   // Set default mess from session if possible
   useEffect(() => {
@@ -35,43 +31,27 @@ export default function WeeklyMenuPage() {
     }
   }, [userMessId]);
 
-  // Fetch current active weekType dynamically
+  // Use the today menu hook to get the current active week type (avoids a separate fetch)
+  const todayMenu = useTodayMenu();
   useEffect(() => {
-    async function fetchActiveWeekType() {
-      try {
-        const res = await api.get("/menu/today");
-        if (res.data && res.data.weekType) {
-          setWeekType(res.data.weekType);
-        }
-      } catch (e) {}
+    if (todayMenu.weekType) {
+      setWeekType(todayMenu.weekType as "odd" | "even");
     }
-    fetchActiveWeekType();
-  }, []);
+  }, [todayMenu.weekType]);
 
-  useEffect(() => {
-    async function loadWeekly() {
-      try {
-        setLoading(true);
-        // Find mess mongo ID
-        let dbMessId = selectedMess === "mess-1" ? "60d07e6181f9f25712e3e6f1" : "60d07e6181f9f25712e3e6f2";
-        // If we are looking for the user's assigned mess, we can use the actual ID
-        if (userMessId && (userMessId.slug === selectedMess || userMessId._id === selectedMess)) {
-          dbMessId = userMessId._id;
-        }
+  // Resolve the database mess ID for the weekly query
+  let dbMessId: string | null = null;
+  if (selectedMess === "mess-1") {
+    dbMessId = "60d07e6181f9f25712e3e6f1";
+  } else {
+    dbMessId = "60d07e6181f9f25712e3e6f2";
+  }
+  if (userMessId && (userMessId.slug === selectedMess || userMessId._id === selectedMess)) {
+    dbMessId = userMessId._id;
+  }
 
-        const res = await api.get(`/menu/weekly/${dbMessId}?weekType=${weekType}`);
-        setWeeklyMenu(res.data.weekly);
-      } catch (err) {
-        console.error("Error loading weekly menu:", err);
-      } finally {
-        setLoading(false);
-      }
-    }
-
-    if (session) {
-      loadWeekly();
-    }
-  }, [selectedMess, weekType, session, userMessId]);
+  // SWR hook: fetches and caches the weekly grid for this mess + weekType combination
+  const { weekly, isLoading } = useWeeklyMenu(dbMessId, weekType, !!session);
 
   const days = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
   const meals = ["breakfast", "lunch", "snacks", "dinner"];
@@ -126,14 +106,14 @@ export default function WeeklyMenuPage() {
 
       {/* Calendar layout */}
       <Card padding="lg" className="min-h-[400px] relative overflow-hidden">
-        {loading ? (
+        {isLoading ? (
           <div className="absolute inset-0 flex items-center justify-center">
             <div className="flex flex-col items-center gap-3">
               <div className="w-8 h-8 rounded-full border-2 border-[var(--border)] border-t-[var(--accent)] animate-spin" />
               <p className="text-xs text-[var(--ink-muted)]">Generating weekly schedule...</p>
             </div>
           </div>
-        ) : weeklyMenu ? (
+        ) : weekly ? (
           <div className="space-y-8">
             {days.map((day) => (
               <div key={day} className="border-b border-[var(--border)] last:border-none pb-8 last:pb-0 space-y-4">
@@ -144,7 +124,7 @@ export default function WeeklyMenuPage() {
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
                   {meals.map((meal) => {
-                    const items = weeklyMenu[day]?.[meal] || [];
+                    const items = weekly[day]?.[meal] || [];
                     return (
                       <div key={meal} className="p-4 bg-[var(--surface-2)] border border-[var(--border)] hover:border-[var(--accent)]/15 rounded-2xl space-y-3 transition-colors duration-200 group">
                         <div className="text-[10px] text-[var(--ink-muted)] font-bold uppercase tracking-wider capitalize flex items-center justify-between">
@@ -182,4 +162,3 @@ export default function WeeklyMenuPage() {
     </div>
   );
 }
-
