@@ -99,6 +99,105 @@ router.get('/today', cacheMiddleware(3600), async (req, res, next) => {
   }
 });
 
+// GET /api/menu/today/all — Get today's menu for ALL meals in a single response
+// Used by the client to pre-fetch all meal data and enable instant tab switching
+router.get('/today/all', cacheMiddleware(3600), async (req, res, next) => {
+  try {
+    const today = getISTDate();
+    const dayName = getDayName(today);
+    const weekType = getWeekType(today);
+    const currentMeal = getCurrentMeal();
+    const mealTypes = ['breakfast', 'lunch', 'snacks', 'dinner'];
+
+    // Single query: fetch all veg menus for today (all meals)
+    const allVegMenus = await VegMenu.find({
+      day: dayName,
+      weekType,
+      meal: { $in: mealTypes },
+    }).populate('messId', 'name slug');
+
+    // Single query: fetch all non-veg menus for today (all meals)
+    const startOfDay = new Date(today);
+    const endOfDay = new Date(today);
+    endOfDay.setHours(23, 59, 59, 999);
+
+    const allDbNonVegMenus = await NonVegMenu.find({
+      date: { $gte: startOfDay, $lte: endOfDay },
+      meal: { $in: mealTypes },
+    }).populate('messId', 'name slug');
+
+    const activeMesses = await MessHall.find({ isActive: true });
+
+    // Build response grouped by meal
+    const meals = {};
+    for (const meal of mealTypes) {
+      const vegMenus = allVegMenus.filter(m => m.meal === meal);
+      const dbNonVegMenus = allDbNonVegMenus.filter(m => m.meal === meal);
+
+      const nonVegMenus = [];
+      for (const mess of activeMesses) {
+        const existingMenu = dbNonVegMenus.find(m => m.messId && (m.messId._id.toString() === mess._id.toString() || m.messId.toString() === mess._id.toString()));
+        const vegMenuForMess = vegMenus.find(m => m.messId && (m.messId._id.toString() === mess._id.toString() || m.messId.toString() === mess._id.toString()));
+
+        const nonVegItems = [];
+        if (vegMenuForMess && vegMenuForMess.items) {
+          vegMenuForMess.items.forEach(item => {
+            if (item.isVeg === false) {
+              nonVegItems.push({
+                name: item.name,
+                cost: 0,
+                icon: item.icon || '',
+                isVeg: false,
+                _id: item._id
+              });
+            }
+          });
+        }
+
+        if (existingMenu && existingMenu.items) {
+          existingMenu.items.forEach(existing => {
+            if (!nonVegItems.some(i => i.name.toLowerCase() === existing.name.toLowerCase())) {
+              nonVegItems.push({
+                name: existing.name,
+                cost: 0,
+                icon: existing.icon || '',
+                isVeg: false,
+                _id: existing._id
+              });
+            }
+          });
+        }
+
+        if (nonVegItems.length > 0) {
+          nonVegMenus.push({
+            _id: existingMenu ? existingMenu._id : `free-nonveg-${mess._id}`,
+            messId: {
+              _id: mess._id,
+              name: mess.name,
+              slug: mess.slug
+            },
+            date: today,
+            meal,
+            items: nonVegItems
+          });
+        }
+      }
+
+      meals[meal] = { vegMenus, nonVegMenus };
+    }
+
+    res.json({
+      date: today,
+      day: dayName,
+      weekType,
+      currentMeal,
+      meals,
+    });
+  } catch (error) {
+    next(error);
+  }
+});
+
 // GET /api/menu/weekly/:messId — Full weekly menu for a mess
 router.get('/weekly/:messId', cacheMiddleware(3600), async (req, res, next) => {
   try {
