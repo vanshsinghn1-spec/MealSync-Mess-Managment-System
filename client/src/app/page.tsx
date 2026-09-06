@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useSession } from "next-auth/react";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import axios from "axios";
 import {
   UtensilsCrossed,
@@ -32,51 +32,7 @@ import { Badge } from "@/components/ui/Badge";
 import { Tabs } from "@/components/ui/Tabs";
 import { DarkPanel } from "@/components/ui/DarkPanel";
 import { Skeleton } from "@/components/ui/Skeleton";
-
-interface MenuItem {
-  name: string;
-  icon: string;
-  isVeg?: boolean;
-}
-
-interface VegMenu {
-  _id: string;
-  messId: {
-    _id: string;
-    name: string;
-    slug: string;
-  };
-  day: string;
-  weekType: "odd" | "even";
-  meal: string;
-  items: MenuItem[];
-}
-
-interface NonVegMenu {
-  _id: string;
-  messId: {
-    _id: string;
-    name: string;
-    slug: string;
-  };
-  date: string;
-  meal: string;
-  items: {
-    name: string;
-    cost: number;
-    icon: string;
-    isVeg?: boolean;
-  }[];
-}
-
-interface TodayMenuResponse {
-  date: string;
-  day: string;
-  weekType: "odd" | "even";
-  currentMeal: string;
-  vegMenus: VegMenu[];
-  nonVegMenus: NonVegMenu[];
-}
+import { useTodayMenu } from "@/hooks/useMenuData";
 
 interface FoodRating {
   foodItem: string;
@@ -94,70 +50,64 @@ export default function LandingPage() {
   const { data: session } = useSession();
   const { theme, toggle: toggleTheme } = useTheme();
   const [selectedMess, setSelectedMess] = useState<"mess-1" | "mess-2">("mess-1");
-  const [selectedMeal, setSelectedMeal] = useState<string>("breakfast");
-  const [menuData, setMenuData] = useState<TodayMenuResponse | null>(null);
+  const [selectedMeal, setSelectedMeal] = useState<string | null>(null);
   const [ratings, setRatings] = useState<FoodRating[]>([]);
   const [pollStats, setPollStats] = useState<PollStats>({ likes: 0, dislikes: 0, total: 0 });
   const [notifications, setNotifications] = useState<any[]>([]);
-  const [loading, setLoading] = useState(true);
 
-  // Set default meal selection based on current hour on mount
-  useEffect(() => {
-    const getCurrentMealByTime = (): string => {
-      const hour = new Date().getHours();
-      if (hour >= 0 && hour < 9) {
-        return "breakfast";
-      } else if (hour >= 9 && hour < 14) {
-        return "lunch";
-      } else if (hour >= 14 && hour < 18) {
-        return "snacks";
-      } else {
-        return "dinner";
-      }
-    };
-    setSelectedMeal(getCurrentMealByTime());
-  }, []);
+  // SWR hook: fetches all 4 meals in a single request, cached in memory
+  const { meals, day, weekType, currentMeal, isLoading: menuLoading } = useTodayMenu();
 
-  // Fetch menu and rating details
+  // Default to server-determined current meal on first load
+  const activeMeal = selectedMeal || currentMeal;
+
+  // Derive veg and non-veg items from the pre-fetched meals object (instant tab switching)
+  const { activeVegMenu, activeNonVegMenu } = useMemo(() => {
+    if (!meals || !meals[activeMeal]) {
+      return { activeVegMenu: null, activeNonVegMenu: null };
+    }
+
+    const mealData = meals[activeMeal];
+
+    const veg = mealData.vegMenus?.find(
+      (m: any) => m.messId?.slug === selectedMess
+    ) || null;
+
+    const nonVeg = mealData.nonVegMenus?.find(
+      (m: any) => m.messId?.slug === selectedMess
+    ) || null;
+
+    return { activeVegMenu: veg, activeNonVegMenu: nonVeg };
+  }, [meals, activeMeal, selectedMess]);
+
+  // Fetch ratings and polls (secondary data, non-blocking)
   useEffect(() => {
-    async function fetchData() {
+    async function fetchSidebarData() {
       try {
-        setLoading(true);
         const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api";
-        
-        // 1. Fetch Today's Menu
-        const menuRes = await axios.get(`${API_BASE}/menu/today?meal=${selectedMeal}`);
-        setMenuData(menuRes.data);
-        if (menuRes.data.currentMeal && !selectedMeal) {
-          setSelectedMeal(menuRes.data.currentMeal);
-        }
-
-        // 2. Fetch Ratings for the selected Mess
         const dbMessId = selectedMess === "mess-1" ? "60d07e6181f9f25712e3e6f1" : "60d07e6181f9f25712e3e6f2";
         
-        try {
-          const ratingsRes = await axios.get(`${API_BASE}/feedback/ratings/${dbMessId}`);
-          setRatings(ratingsRes.data);
-        } catch (e) {
-          console.error("Error fetching ratings:", e);
-        }
+        // Fire both requests in parallel instead of sequentially
+        const [ratingsRes, pollRes] = await Promise.allSettled([
+          axios.get(`${API_BASE}/feedback/ratings/${dbMessId}`),
+          axios.get(`${API_BASE}/polls/stats/${dbMessId}/${activeMeal}`),
+        ]);
 
-        // 3. Fetch Poll Stats
-        try {
-          const pollRes = await axios.get(`${API_BASE}/polls/stats/${dbMessId}/${selectedMeal}`);
-          setPollStats(pollRes.data);
-        } catch (e) {
-          console.error("Error fetching polls:", e);
+        if (ratingsRes.status === "fulfilled") {
+          setRatings(ratingsRes.value.data);
+        }
+        if (pollRes.status === "fulfilled") {
+          setPollStats(pollRes.value.data);
         }
       } catch (error) {
-        console.error("Error fetching landing page data:", error);
-      } finally {
-        setLoading(false);
+        console.error("Error fetching sidebar data:", error);
       }
     }
 
-    fetchData();
-  }, [selectedMess, selectedMeal]);
+    if (activeMeal) {
+      fetchSidebarData();
+    }
+  }, [selectedMess, activeMeal]);
 
   // Fetch Public Notifications
   useEffect(() => {
@@ -184,10 +134,6 @@ export default function LandingPage() {
     fetchNotifications();
   }, []);
 
-  // Filter menu data for selected mess
-  const activeVegMenu = menuData?.vegMenus?.find(m => m.messId.slug === selectedMess);
-  const activeNonVegMenu = menuData?.nonVegMenus?.find(m => m.messId.slug === selectedMess);
-
   // Helper to find rating of a food item
   const getItemRating = (itemName: string) => {
     const ratingObj = ratings.find(r => itemName.toLowerCase().includes(r.foodItem.toLowerCase()) || r.foodItem.toLowerCase().includes(itemName.toLowerCase()));
@@ -200,8 +146,8 @@ export default function LandingPage() {
   };
 
   const getDayLabel = () => {
-    if (menuData) {
-      return `${menuData.day} Menu (${menuData.weekType.toUpperCase()} Week)`;
+    if (day && weekType) {
+      return `${day} Menu (${weekType.toUpperCase()} Week)`;
     }
     return "Today's Menu";
   };
@@ -359,13 +305,13 @@ export default function LandingPage() {
                     key={meal.id}
                     onClick={() => setSelectedMeal(meal.id)}
                     className={`p-2.5 sm:p-3 rounded-2xl border transition-all duration-200 text-left group ${
-                      selectedMeal === meal.id
+                      activeMeal === meal.id
                         ? "bg-[var(--surface-2)] border-[var(--accent)]/50 text-[var(--ink)] shadow-card"
                         : "bg-transparent border-[var(--border)] text-[var(--ink-muted)] hover:text-[var(--ink)] hover:border-[var(--accent)]/20"
                     }`}
                   >
                     <div className="flex items-center gap-1.5 text-xs sm:text-sm font-semibold group-hover:text-[var(--ink)] transition-colors">
-                      <span className={selectedMeal === meal.id ? "text-[var(--accent)]" : "text-[var(--ink-muted)] group-hover:text-[var(--ink)]"}>
+                      <span className={activeMeal === meal.id ? "text-[var(--accent)]" : "text-[var(--ink-muted)] group-hover:text-[var(--ink)]"}>
                         {meal.icon}
                       </span>
                       {meal.label}
@@ -382,7 +328,7 @@ export default function LandingPage() {
                 <div>
                   <h3 className="text-base sm:text-lg font-bold text-[var(--ink)] tracking-tight">{getDayLabel()}</h3>
                   <p className="text-xs text-[var(--ink-muted)] capitalize mt-0.5">
-                    Listing all dishes for today's {selectedMeal}
+                    Listing all dishes for today's {activeMeal}
                   </p>
                 </div>
                 <Badge variant="default" className="text-[10px] uppercase font-bold tracking-wider px-2.5 py-1 shrink-0">
@@ -390,7 +336,7 @@ export default function LandingPage() {
                 </Badge>
               </div>
 
-              {loading ? (
+              {menuLoading ? (
                 <div className="absolute inset-0 flex items-center justify-center">
                   <div className="flex flex-col items-center gap-3">
                     <div className="w-8 h-8 rounded-full border-2 border-[var(--border)] border-t-[var(--accent)] animate-spin" />
@@ -407,7 +353,7 @@ export default function LandingPage() {
                       Today's Served Menu
                     </h4>
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                      {activeVegMenu.items.map((item, idx) => {
+                      {activeVegMenu.items.map((item: any, idx: number) => {
                         const itemRating = getItemRating(item.name);
                         const ratingCount = getItemRatingCount(item.name);
                         const isVeg = item.isVeg !== false;
@@ -455,7 +401,7 @@ export default function LandingPage() {
               ) : (
                 <div className="flex flex-col items-center justify-center py-20 text-[var(--ink-muted)]">
                   <UtensilsCrossed size={40} className="stroke-[1.5] mb-3 text-[var(--ink-muted)]/60" />
-                  <p className="text-sm font-semibold">No menu details found for today's {selectedMeal}.</p>
+                  <p className="text-sm font-semibold">No menu details found for today's {activeMeal}.</p>
                   <p className="text-xs mt-1 text-[var(--ink-muted)]/70">Menu updates pending from mess official seeders.</p>
                 </div>
               )}
@@ -561,7 +507,7 @@ export default function LandingPage() {
               </p>
               <div className="flex items-center gap-6 pt-2">
                 <div>
-                  <div className="text-xl font-bold text-[var(--ink)]">4.8★</div>
+                  <div className="text-xl font-bold text-[var(--ink)]">4.8*</div>
                   <div className="text-[9px] text-[var(--ink-muted)] uppercase font-semibold mt-0.5">Top Dish (Dosa)</div>
                 </div>
                 <div className="border-l border-[var(--border)] h-8" />
