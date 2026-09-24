@@ -1,0 +1,25 @@
+# Keep the Render free-tier backend warm by pinging /api/health every 5 minutes.
+# Without this, Render sleeps the container after 15 min of inactivity, causing
+# 15-20 second cold starts for the first real user request.
+
+name: Keep Backend Alive
+
+on:
+  schedule:
+    # Every 5 minutes, 24/7
+    - cron: '*/5 * * * *'
+  workflow_dispatch: # Allow manual trigger for testing
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    timeout-minutes: 2
+    steps:
+      - name: Ping backend health endpoint
+        run: |
+          response=$(curl -s -o /dev/null -w "%{http_code}" --max-time 30 \
+            "https://mealsync-mess-managment-system.onrender.com/api/health")
+          echo "Health check response: $response"
+          if [ "$response" != "200" ]; then
+            echo "::warning::Health check returned $response"
+          fi
