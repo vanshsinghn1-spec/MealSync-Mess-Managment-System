@@ -1,6 +1,10 @@
-# Keep the Render free-tier backend warm by pinging /api/health every 5 minutes.
+# Keep the Render free-tier backend warm by pinging every 5 minutes.
 # Without this, Render sleeps the container after 15 min of inactivity, causing
 # 15-20 second cold starts for the first real user request.
+#
+# We ping /api/menu/today/all (not just /api/health) because there's no Redis
+# on Render — the only cache is in-memory and gets wiped on every cold start.
+# Hitting the menu endpoint keeps both the server AND the cache warm.
 
 name: Keep Backend Alive
 
@@ -15,11 +19,19 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 2
     steps:
-      - name: Ping backend health endpoint
+      - name: Warm up server and menu cache
         run: |
-          response=$(curl -s -o /dev/null -w "%{http_code}" --max-time 30 \
+          # First ping health to wake the server (fast, no DB)
+          health=$(curl -s -o /dev/null -w "%{http_code}" --max-time 45 \
             "https://mealsync-mess-managment-system.onrender.com/api/health")
-          echo "Health check response: $response"
-          if [ "$response" != "200" ]; then
-            echo "::warning::Health check returned $response"
+          echo "Health: $health"
+
+          # Then ping the menu endpoint to warm the in-memory cache
+          menu=$(curl -s -o /dev/null -w "%{http_code}" --max-time 30 \
+            "https://mealsync-mess-managment-system.onrender.com/api/menu/today/all")
+          echo "Menu cache warm: $menu"
+
+          if [ "$health" != "200" ]; then
+            echo "::warning::Health check returned $health"
           fi
+
