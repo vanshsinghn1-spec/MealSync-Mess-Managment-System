@@ -13,7 +13,7 @@
 
 ---
 
-## 🍽️ Campus Meal Schedule (IST)
+## Campus Meal Schedule (IST)
 
 MealSync features a server-authoritative time-aware scheduling engine with minute precision:
 
@@ -24,16 +24,16 @@ MealSync features a server-authoritative time-aware scheduling engine with minut
 | **Snacks** | **4:45 PM – 6:00 PM** | 16:45 – 18:00 |
 | **Dinner** | **7:00 PM – 9:30 PM** | 19:00 – 21:30 |
 
-*Outside of active meal hours, the dashboard automatically predicts and highlights the next upcoming meal (after 9:30 PM, it seamlessly transitions to the next morning's breakfast).*
+*Outside of active meal hours, the dashboard automatically predicts and highlights the next upcoming meal (after 9:30 PM, it transitions to the next morning's breakfast).*
 
 ---
 
-## ⚡ Key Features
+## Key Features
 
-1. **Minute-Precision Time Engine**: Server-authoritative IST detection automatically highlights the live serving meal, drives the active tab, and powers pulsing live-status pills.
+1. **Minute-Precision Time Engine**: Server-authoritative IST detection automatically highlights the live serving meal, drives the active tab, and powers live-status indicators.
 2. **Instant Tab Switching (Single-Query Menu API)**: The `/api/menu/today/all` endpoint aggregates all 4 daily meals across vegetarian items and special non-veg add-ons in a single database roundtrip, paired with client-side SWR caching for zero-latency tab navigation.
 3. **Dish-Level Ratings & Reviews**: Residents can submit 1–5 star ratings and written reviews for individual dishes, providing mess contractors and wardens with empirical quality metrics.
-4. **Daily Satisfaction Polls**: 1-tap sentiment polling (*Delicious* vs. *Disappointing*) for the active meal, displaying live community sentiment.
+4. **Daily Satisfaction Polls**: Single-tap sentiment polling (*Delicious* vs. *Disappointing*) for the active meal, displaying live community sentiment.
 5. **Food Waste Analytics**: Dedicated contractor tools for logging post-service leftover food waste (in kg), mapped directly to Recharts visual trend graphs for administrators.
 6. **Digital Mess Reallocation**: Self-service student request portal for dining hall transfers (Mess Sai vs. Mess Sheila) with 1-click administrative review and approval.
 7. **Role-Based Access Control (RBAC)**: Secure multi-tier authorization for **Students**, **Mess Officials**, and **Chief Warden / SAC Administrators**.
@@ -42,7 +42,7 @@ MealSync features a server-authoritative time-aware scheduling engine with minut
 
 ---
 
-## 🛠️ Tech Stack & Architecture
+## Tech Stack & Architecture
 
 ### Frontend (Client)
 * **Framework**: Next.js (App Router) + TypeScript + React 19
@@ -66,7 +66,7 @@ MealSync features a server-authoritative time-aware scheduling engine with minut
 
 ---
 
-## 🚀 One-Click Demo Access
+## One-Click Demo Access
 
 You can explore the live deployment immediately without needing college credentials:
 
@@ -82,7 +82,7 @@ You can explore the live deployment immediately without needing college credenti
 
 ---
 
-## 💻 Local Development Setup
+## Local Development Setup
 
 ### Prerequisites
 * Node.js (v18 or higher recommended)
@@ -136,5 +136,5 @@ The application will be live at `http://localhost:3000` connected to the API on 
 
 ---
 
-## 📄 License
-This project is licensed under the MIT License. Designed and built with ❤️ for IIITDM Kancheepuram.
+## License
+This project is licensed under the MIT License. Designed and built for IIITDM Kancheepuram.
