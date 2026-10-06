@@ -6,7 +6,7 @@ import { useSession, signOut } from "next-auth/react";
 import { cn } from "@/lib/utils";
 import {
   LayoutDashboard,
-  UtensilsCrossed,
+  Utensils,
   CalendarDays,
   Star,
   MessageSquare,
@@ -30,7 +30,7 @@ interface NavItem {
 
 const navItems: NavItem[] = [
   { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
-  { href: "/menu/today", label: "Today's Menu", icon: UtensilsCrossed },
+  { href: "/menu/today", label: "Today's Menu", icon: Utensils },
   { href: "/menu/weekly", label: "Weekly Menu", icon: CalendarDays },
   { href: "/ratings", label: "Rate Meal", icon: Star, roles: ["student"] },
   { href: "/feedback", label: "Feedback", icon: MessageSquare },
@@ -42,16 +42,22 @@ const navItems: NavItem[] = [
 
 const ROW_BASE =
   "relative flex items-center h-11 w-11 rounded-2xl overflow-hidden " +
-  "group-hover/sidebar:w-[200px] " +
-  "transition-[width,background-color,color,box-shadow] duration-300 ease-[cubic-bezier(0.16,1,0.3,1)]";
+  "group-hover/sidebar:w-[208px] " +
+  "transition-[width,background-color,color,box-shadow] duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] cursor-pointer";
 
 const LABEL_BASE =
-  "text-sm font-medium whitespace-nowrap pr-4 " +
+  "text-sm font-semibold whitespace-nowrap pr-4 " +
   "opacity-0 -translate-x-1 " +
   "transition-[opacity,transform] duration-200 ease-out " +
   "group-hover/sidebar:opacity-100 group-hover/sidebar:translate-x-0 group-hover/sidebar:delay-100";
 
-function NavItemRow({ href, icon: Icon, label, isActive, onClick }: {
+function NavItemRow({
+  href,
+  icon: Icon,
+  label,
+  isActive,
+  onClick,
+}: {
   href: string;
   icon: typeof LayoutDashboard;
   label: string;
@@ -64,12 +70,12 @@ function NavItemRow({ href, icon: Icon, label, isActive, onClick }: {
         className={cn(
           ROW_BASE,
           isActive
-            ? "bg-[var(--ink)] text-[var(--bg)] shadow-card"
+            ? "bg-[#173b2a] text-[#d9f36b] shadow-md dark:bg-[#1f4935] dark:text-[#d9f36b]"
             : "text-[var(--ink-muted)] hover:bg-[var(--surface-2)] hover:text-[var(--ink)]"
         )}
       >
         <span className="h-11 w-11 flex items-center justify-center shrink-0">
-          <Icon size={18} strokeWidth={2} />
+          <Icon size={19} strokeWidth={2.2} />
         </span>
         <span className={LABEL_BASE}>{label}</span>
       </div>
@@ -77,7 +83,13 @@ function NavItemRow({ href, icon: Icon, label, isActive, onClick }: {
   );
 }
 
-function MobileNavItem({ href, icon: Icon, label, isActive, onClick }: {
+function MobileNavItem({
+  href,
+  icon: Icon,
+  label,
+  isActive,
+  onClick,
+}: {
   href: string;
   icon: typeof LayoutDashboard;
   label: string;
@@ -89,14 +101,14 @@ function MobileNavItem({ href, icon: Icon, label, isActive, onClick }: {
       href={href}
       onClick={onClick}
       className={cn(
-        "flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-medium transition-colors",
+        "flex items-center gap-3 px-4 py-3 rounded-2xl text-sm font-bold transition-all",
         isActive
-          ? "bg-[var(--ink)] text-[var(--bg)]"
+          ? "bg-[#173b2a] text-[#d9f36b] shadow-sm"
           : "text-[var(--ink-muted)] hover:text-[var(--ink)] hover:bg-[var(--surface-2)]"
       )}
     >
-      <Icon size={18} strokeWidth={2} />
-      {label}
+      <Icon size={19} strokeWidth={2.2} />
+      <span>{label}</span>
     </Link>
   );
 }
@@ -115,50 +127,56 @@ export default function Sidebar() {
 
   return (
     <>
-      {/* Mobile Menu Button */}
+      {/* Mobile Menu Hamburger Trigger */}
       <button
         onClick={() => setMobileOpen(true)}
-        className="fixed top-4 left-4 z-50 h-10 w-10 rounded-full bg-[var(--surface)] border border-[var(--border)] shadow-card flex items-center justify-center text-[var(--ink)] md:hidden"
+        className="fixed top-4 left-4 z-50 h-11 w-11 rounded-2xl bg-[var(--surface)] border border-[var(--border)] shadow-md flex items-center justify-center text-[var(--ink)] md:hidden cursor-pointer"
         id="mobile-menu-btn"
+        aria-label="Open sidebar menu"
       >
-        <Menu size={18} />
+        <Menu size={20} />
       </button>
 
-      {/* Mobile Overlay */}
+      {/* Mobile Drawer Overlay */}
       {mobileOpen && (
         <div
-          className="fixed inset-0 z-40 bg-black/40 backdrop-blur-sm md:hidden"
+          className="fixed inset-0 z-40 bg-black/50 backdrop-blur-sm md:hidden transition-opacity"
           onClick={() => setMobileOpen(false)}
         />
       )}
 
-      {/* Mobile Sidebar */}
+      {/* Mobile Drawer */}
       <aside
         className={cn(
-          "fixed inset-y-0 left-0 z-50 w-72 bg-[var(--surface)] border-r border-[var(--border)] flex flex-col transition-transform duration-300 md:hidden p-3",
+          "fixed inset-y-0 left-0 z-50 w-72 bg-[var(--surface)] border-r border-[var(--border)] flex flex-col transition-transform duration-300 md:hidden p-4 shadow-2xl",
           mobileOpen ? "translate-x-0" : "-translate-x-full"
         )}
       >
-        {/* Mobile Header */}
-        <div className="flex items-center justify-between px-2 py-3 mb-2">
-          <div className="flex items-center gap-2.5">
-            <div className="h-9 w-9 rounded-xl bg-[var(--accent)] flex items-center justify-center">
-              <UtensilsCrossed size={18} className="text-white" />
+        {/* Drawer Header */}
+        <div className="flex items-center justify-between px-2 py-3 mb-4 border-b border-[var(--border)] pb-4">
+          <div className="flex items-center gap-3">
+            <div className="flex size-10 items-center justify-center rounded-2xl bg-[#173b2a] text-[#d9f36b] shadow-sm">
+              <Utensils size={18} />
             </div>
-            <span className="font-display text-[15px] font-semibold tracking-tight text-[var(--ink)]">
-              MealSync
-            </span>
+            <div>
+              <span className="font-bold text-base tracking-tight text-[var(--ink)] block leading-none">
+                MealSync
+              </span>
+              <span className="text-[9px] uppercase tracking-widest text-[var(--ink-muted)] font-semibold">
+                IIITDM Portal
+              </span>
+            </div>
           </div>
           <button
             onClick={() => setMobileOpen(false)}
-            className="h-9 w-9 rounded-full flex items-center justify-center text-[var(--ink-muted)] hover:bg-[var(--surface-2)]"
+            className="size-9 rounded-xl flex items-center justify-center text-[var(--ink-muted)] hover:bg-[var(--surface-2)] cursor-pointer"
           >
             <X size={18} />
           </button>
         </div>
 
-        {/* Mobile Nav */}
-        <nav className="flex-1 space-y-1 overflow-y-auto">
+        {/* Navigation list */}
+        <nav className="flex-1 space-y-1.5 overflow-y-auto pr-1">
           {filteredItems.map((item) => {
             const isActive = pathname === item.href || pathname.startsWith(item.href + "/");
             return (
@@ -175,7 +193,7 @@ export default function Sidebar() {
         </nav>
 
         {/* Mobile Footer */}
-        <div className="border-t border-[var(--border)] pt-3 space-y-1">
+        <div className="border-t border-[var(--border)] pt-4 space-y-2">
           <MobileNavItem
             href="/profile"
             icon={Settings}
@@ -185,41 +203,42 @@ export default function Sidebar() {
           />
           <button
             onClick={() => signOut({ callbackUrl: "/login" })}
-            className="flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-medium text-[var(--danger)] hover:bg-[var(--danger)]/10 transition-colors w-full"
+            className="flex items-center gap-3 px-4 py-3 rounded-2xl text-sm font-bold text-[#cf4f45] hover:bg-[#cf4f45]/10 transition-colors w-full cursor-pointer"
           >
-            <LogOut size={18} />
-            Log out
+            <LogOut size={19} strokeWidth={2.2} />
+            <span>Sign Out</span>
           </button>
         </div>
       </aside>
 
-      {/* Desktop Sidebar — Collapsible Icon Sidebar */}
+      {/* Desktop Sidebar — Sleek Collapsible Dock */}
       <aside
         className={cn(
           "group/sidebar hidden md:flex shrink-0 h-[calc(100vh-32px)] sticky top-4 ml-4",
-          "flex-col items-center justify-between py-5 rounded-3xl",
-          "bg-[var(--surface)] border border-[var(--border)] shadow-card overflow-hidden",
-          "w-[88px] hover:w-[248px]",
-          "transition-[width] duration-300 ease-[cubic-bezier(0.16,1,0.3,1)]"
+          "flex-col items-center justify-between py-6 rounded-[2rem]",
+          "bg-[var(--surface)] border border-[var(--border)] shadow-[0_14px_45px_rgba(23,59,42,0.06)] overflow-hidden",
+          "w-[90px] hover:w-[250px]",
+          "transition-[width] duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] z-30"
         )}
       >
-        {/* Top: Logo + Nav */}
-        <div className="flex flex-col items-center gap-6 w-full">
+        {/* Top: Brand Logo + Nav Items */}
+        <div className="flex flex-col items-center gap-6 w-full px-4">
           {/* Logo */}
-          <div
+          <Link
+            href="/"
             className={cn(
-              "flex items-center h-14 w-14 group-hover/sidebar:w-[200px]",
+              "flex items-center h-12 w-full",
               "transition-[width] duration-300 ease-[cubic-bezier(0.16,1,0.3,1)]"
             )}
           >
             <div className="h-11 w-11 flex items-center justify-center shrink-0">
-              <div className="h-9 w-9 rounded-xl bg-[var(--accent)] flex items-center justify-center">
-                <UtensilsCrossed size={18} className="text-white" />
+              <div className="flex size-11 items-center justify-center rounded-2xl bg-[#173b2a] text-[#d9f36b] shadow-sm">
+                <Utensils size={19} />
               </div>
             </div>
             <span
               className={cn(
-                "ml-1 font-display text-base font-semibold text-[var(--ink)] whitespace-nowrap",
+                "ml-3 font-bold text-base text-[var(--ink)] tracking-tight whitespace-nowrap",
                 "opacity-0 -translate-x-1",
                 "transition-[opacity,transform] duration-200 ease-out",
                 "group-hover/sidebar:opacity-100 group-hover/sidebar:translate-x-0 group-hover/sidebar:delay-100"
@@ -227,10 +246,10 @@ export default function Sidebar() {
             >
               MealSync
             </span>
-          </div>
+          </Link>
 
-          {/* Nav Items */}
-          <nav className="flex flex-col items-center gap-1.5">
+          {/* Nav List */}
+          <nav className="flex flex-col items-center gap-1.5 w-full">
             {filteredItems.map((item) => {
               const isActive = pathname === item.href || pathname.startsWith(item.href + "/");
               return (
@@ -246,66 +265,66 @@ export default function Sidebar() {
           </nav>
         </div>
 
-        {/* Bottom: Settings, Logout, Avatar */}
-        <div className="flex flex-col items-center gap-2 w-full">
-          {/* Profile / Settings */}
-          <Link href="/profile" title="Profile" className="block">
+        {/* Bottom: Settings, Logout, User Card */}
+        <div className="flex flex-col items-center gap-2 w-full px-4 border-t border-[var(--border)] pt-4">
+          {/* Profile */}
+          <Link href="/profile" title="Profile" className="block w-full">
             <div
               className={cn(
                 ROW_BASE,
                 pathname === "/profile"
-                  ? "bg-[var(--ink)] text-[var(--bg)] shadow-card"
+                  ? "bg-[#173b2a] text-[#d9f36b] shadow-md"
                   : "text-[var(--ink-muted)] hover:bg-[var(--surface-2)] hover:text-[var(--ink)]"
               )}
             >
               <span className="h-11 w-11 flex items-center justify-center shrink-0">
-                <Settings size={18} strokeWidth={2} />
+                <Settings size={19} strokeWidth={2.2} />
               </span>
               <span className={LABEL_BASE}>Profile</span>
             </div>
           </Link>
 
-          {/* Logout */}
+          {/* Logout Button */}
           <button
             onClick={() => signOut({ callbackUrl: "/login" })}
             title="Log out"
-            className="block"
+            className="block w-full"
           >
             <div
               className={cn(
                 ROW_BASE,
-                "text-[var(--ink-muted)] hover:bg-[var(--surface-2)] hover:text-[var(--ink)]"
+                "text-[var(--ink-muted)] hover:bg-[#cf4f45]/10 hover:text-[#cf4f45]"
               )}
             >
               <span className="h-11 w-11 flex items-center justify-center shrink-0">
-                <LogOut size={18} strokeWidth={2} />
+                <LogOut size={19} strokeWidth={2.2} />
               </span>
               <span className={LABEL_BASE}>Log out</span>
             </div>
           </button>
 
-          {/* User Avatar */}
+          {/* User Avatar & Name Tag */}
           <div
             className={cn(
-              "flex items-center h-12 mt-1 w-10 group-hover/sidebar:w-[200px] overflow-hidden",
-              "transition-[width] duration-300 ease-[cubic-bezier(0.16,1,0.3,1)]"
+              "flex items-center h-12 mt-2 w-full overflow-hidden rounded-2xl bg-[var(--surface-2)] p-1",
+              "transition-all duration-300 ease-[cubic-bezier(0.16,1,0.3,1)]"
             )}
           >
-            <div className="h-10 w-10 rounded-full bg-[var(--accent-soft)] text-[var(--accent-strong)] font-semibold flex items-center justify-center text-sm ring-2 ring-[var(--surface)] shrink-0">
+            <div className="size-9 rounded-xl bg-[#173b2a] text-[#d9f36b] font-bold flex items-center justify-center text-xs shrink-0 shadow-sm">
               {userName[0]?.toUpperCase() || "U"}
             </div>
             <div
               className={cn(
-                "ml-3 min-w-0 flex-1",
+                "ml-2.5 min-w-0 flex-1",
                 "opacity-0 -translate-x-1",
                 "transition-[opacity,transform] duration-200 ease-out",
                 "group-hover/sidebar:opacity-100 group-hover/sidebar:translate-x-0 group-hover/sidebar:delay-100"
               )}
             >
-              <div className="text-sm font-semibold text-[var(--ink)] truncate">
+              <div className="text-xs font-bold text-[var(--ink)] truncate">
                 {userName}
               </div>
-              <div className="text-[11px] text-[var(--ink-muted)] truncate capitalize">
+              <div className="text-[10px] text-[var(--ink-muted)] truncate capitalize">
                 {userRole?.replace("_", " ") || "Student"}
               </div>
             </div>

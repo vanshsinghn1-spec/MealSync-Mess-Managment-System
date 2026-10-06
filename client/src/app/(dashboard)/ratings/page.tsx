@@ -212,7 +212,7 @@ export default function RateMealPage() {
             ) : (
               <div className="flex flex-col items-center justify-center py-12 text-[var(--ink-muted)] text-xs">
                 <AlertCircle className="mb-2 text-[var(--ink-muted)]/60" />
-                No items scheduled to rate in today's {activeMeal}.
+                No items scheduled to rate in today&apos;s {activeMeal}.
               </div>
             )}
           </Card>

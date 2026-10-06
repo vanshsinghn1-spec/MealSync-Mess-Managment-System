@@ -1,5 +1,6 @@
 "use client";
 
+import { motion } from "framer-motion";
 import { cn } from "@/lib/utils";
 
 interface TabItem {
@@ -13,31 +14,41 @@ interface TabsProps {
   value: string;
   onChange: (value: string) => void;
   className?: string;
+  layoutId?: string;
 }
 
-export function Tabs({ items, value, onChange, className }: TabsProps) {
+export function Tabs({ items, value, onChange, className, layoutId = "tab-pill" }: TabsProps) {
   return (
     <div
       className={cn(
-        "inline-flex items-center gap-1 p-1 rounded-2xl sm:rounded-full bg-[var(--surface-2)] border border-[var(--border)] max-w-full overflow-x-auto no-scrollbar shrink-0",
+        "inline-flex items-center gap-1 p-1 rounded-full bg-[var(--surface-2)] border border-[var(--border)] max-w-full overflow-x-auto no-scrollbar shrink-0",
         className
       )}
     >
-      {items.map((item) => (
-        <button
-          key={item.value}
-          onClick={() => onChange(item.value)}
-          className={cn(
-            "relative inline-flex items-center gap-1.5 h-8 px-3.5 rounded-full text-[13px] font-medium transition-all duration-200",
-            value === item.value
-              ? "bg-[var(--surface)] text-[var(--ink)] shadow-card"
-              : "text-[var(--ink-muted)] hover:text-[var(--ink)]"
-          )}
-        >
-          {item.icon}
-          {item.label}
-        </button>
-      ))}
+      {items.map((item) => {
+        const isActive = value === item.value;
+        return (
+          <button
+            key={item.value}
+            type="button"
+            onClick={() => onChange(item.value)}
+            className={cn(
+              "relative inline-flex items-center gap-2 h-9 px-4 rounded-full text-xs sm:text-sm font-semibold transition-colors duration-200 cursor-pointer z-10",
+              isActive ? "text-[var(--forest)]" : "text-[var(--ink-muted)] hover:text-[var(--ink)]"
+            )}
+          >
+            {isActive && (
+              <motion.span
+                layoutId={layoutId}
+                transition={{ type: "spring", stiffness: 450, damping: 35 }}
+                className="absolute inset-0 rounded-full bg-[var(--surface)] shadow-[0_2px_8px_rgba(23,59,42,0.08)] -z-10"
+              />
+            )}
+            {item.icon}
+            <span>{item.label}</span>
+          </button>
+        );
+      })}
     </div>
   );
 }

@@ -174,7 +174,7 @@ function StudentDashboard({ userMessId }: { userMessId: any }) {
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
             <div>
               <h2 className="text-lg font-bold text-[var(--ink)] tracking-tight font-display capitalize">
-                Today's {activeMeal} Menu
+                Today&apos;s {activeMeal} Menu
               </h2>
               <p className="text-xs text-[var(--ink-muted)]">Standard menu items seeded for your mess</p>
             </div>
@@ -212,23 +212,21 @@ function StudentDashboard({ userMessId }: { userMessId: any }) {
             How was the {activeMeal} today? Likes and dislikes help mess representatives evaluate quality.
           </p>
 
-          <div className="flex gap-4">
-            <Button
+          <div className="flex gap-3">
+            <button
               onClick={() => handleVote("like")}
-              variant={hasVoted === "like" ? "accent" : "outline"}
-              className="flex-1 py-4.5 rounded-2xl text-xs font-bold"
+              className={`vote-button ${hasVoted === "like" ? "vote-button-active" : ""}`}
             >
               <ThumbsUp size={15} fill={hasVoted === "like" ? "currentColor" : "none"} />
-              Delicious
-            </Button>
-            <Button
+              <span>Loved it</span>
+            </button>
+            <button
               onClick={() => handleVote("dislike")}
-              variant={hasVoted === "dislike" ? "accent" : "outline"}
-              className={`flex-1 py-4.5 rounded-2xl text-xs font-bold ${hasVoted === "dislike" ? "bg-[var(--danger)] hover:bg-[var(--danger)]" : ""}`}
+              className={`vote-button ${hasVoted === "dislike" ? "border-[#cf4f45] bg-[#cf4f45]/10 text-[#cf4f45]" : ""}`}
             >
               <ThumbsDown size={15} fill={hasVoted === "dislike" ? "currentColor" : "none"} />
-              Disappointing
-            </Button>
+              <span>Needs work</span>
+            </button>
           </div>
         </Card>
 
