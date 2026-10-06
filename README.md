@@ -1,114 +1,140 @@
-# MealSync - Hostel Mess Management System
+# MealSync — Smart Campus Mess Management System
 
-**Live Application**: [https://mealsync-mu.vercel.app](https://mealsync-mu.vercel.app)
+[![Live Demo](https://img.shields.io/badge/Live%20Demo-mealsync--mu.vercel.app-173b2a?style=for-the-badge&logo=vercel)](https://mealsync-mu.vercel.app)
+[![API Status](https://img.shields.io/badge/Backend%20API-onrender.com-579169?style=for-the-badge&logo=render)](https://mealsync-mess-managment-system.onrender.com)
+[![Next.js](https://img.shields.io/badge/Next.js-16-black?style=for-the-badge&logo=next.js)](https://nextjs.org/)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5.0-blue?style=for-the-badge&logo=typescript)](https://www.typescriptlang.org/)
+[![MongoDB](https://img.shields.io/badge/MongoDB-Atlas-47A248?style=for-the-badge&logo=mongodb)](https://www.mongodb.com/)
 
-MealSync is a full-stack mess management platform designed for IIITDM Kancheepuram hostel residents, mess officials, and administration. It features a modern, responsive web portal to view daily menus, select dynamic dining halls, rate dishes, manage mess reallocations, and track leftover food waste.
+> **Live Application**: [https://mealsync-mu.vercel.app](https://mealsync-mu.vercel.app)  
+> **Backend API**: [https://mealsync-mess-managment-system.onrender.com](https://mealsync-mess-managment-system.onrender.com)
+
+**MealSync** is a production-grade campus dining and feedback ecosystem engineered for **IIITDM Kancheepuram** hostel residents, mess caterers, and administration. It transforms static bi-weekly PDF schedules into a real-time, time-aware web application supporting dynamic dining halls, dish ratings, live sentiment polls, food waste logging, and digital mess reallocation requests.
 
 ---
 
-## Technical Stack
+## 🍽️ Campus Meal Schedule (IST)
+
+MealSync features a server-authoritative time-aware scheduling engine with minute precision:
+
+| Meal | Service Window (IST) | Status Trigger |
+| :--- | :--- | :--- |
+| **Breakfast** | **7:00 AM – 9:30 AM** | 07:00 – 09:30 |
+| **Lunch** | **12:00 PM – 2:30 PM** | 12:00 – 14:30 |
+| **Snacks** | **4:45 PM – 6:00 PM** | 16:45 – 18:00 |
+| **Dinner** | **7:00 PM – 9:30 PM** | 19:00 – 21:30 |
+
+*Outside of active meal hours, the dashboard automatically predicts and highlights the next upcoming meal (after 9:30 PM, it seamlessly transitions to the next morning's breakfast).*
+
+---
+
+## ⚡ Key Features
+
+1. **Minute-Precision Time Engine**: Server-authoritative IST detection automatically highlights the live serving meal, drives the active tab, and powers pulsing live-status pills.
+2. **Instant Tab Switching (Single-Query Menu API)**: The `/api/menu/today/all` endpoint aggregates all 4 daily meals across vegetarian items and special non-veg add-ons in a single database roundtrip, paired with client-side SWR caching for zero-latency tab navigation.
+3. **Dish-Level Ratings & Reviews**: Residents can submit 1–5 star ratings and written reviews for individual dishes, providing mess contractors and wardens with empirical quality metrics.
+4. **Daily Satisfaction Polls**: 1-tap sentiment polling (*Delicious* vs. *Disappointing*) for the active meal, displaying live community sentiment.
+5. **Food Waste Analytics**: Dedicated contractor tools for logging post-service leftover food waste (in kg), mapped directly to Recharts visual trend graphs for administrators.
+6. **Digital Mess Reallocation**: Self-service student request portal for dining hall transfers (Mess Sai vs. Mess Sheila) with 1-click administrative review and approval.
+7. **Role-Based Access Control (RBAC)**: Secure multi-tier authorization for **Students**, **Mess Officials**, and **Chief Warden / SAC Administrators**.
+8. **Modern Responsive Design**: Bespoke design system built on Deep Forest Green (`#173b2a`), Electric Lime (`#d9f36b`), warm neutral cream, Framer Motion micro-animations, and persistent dark/light theme switching.
+9. **Zero Cold Starts**: Continuous GitHub Actions cron workflow pings the Render backend every 5 minutes 24/7, keeping cloud containers awake and in-memory caches warm around the clock.
+
+---
+
+## 🛠️ Tech Stack & Architecture
 
 ### Frontend (Client)
-* **Framework**: Next.js (using Turbopack)
-* **Styling**: TailwindCSS with CSS custom variables for dynamic theme support
-* **State & Authentication**: NextAuth.js (Credentials Provider)
+* **Framework**: Next.js (App Router) + TypeScript + React 19
+* **Styling**: TailwindCSS with CSS custom properties for dual light/dark modes
+* **State & Authentication**: NextAuth.js (JWT Credentials Provider) + SWR
 * **Animations**: Framer Motion
-* **Charts**: Recharts (for administrative analytics)
-* **HTTP Client**: Axios with interceptors for token synchronization
+* **Visualizations**: Recharts (Waste logs, ratings distribution, sentiment trends)
+* **Icons**: Lucide React + custom SVG / multi-resolution `.ico` brand favicon
 
 ### Backend (Server)
-* **Runtime**: Node.js & Express
-* **Database**: MongoDB Atlas via Mongoose ODM
-* **Authentication**: JSON Web Tokens (JWT) & bcryptjs
-* **Logging & Middleware**: Morgan, CORS, express-rate-limit
+* **Runtime**: Node.js & Express.js REST API
+* **Database**: MongoDB Atlas via Mongoose ODM (11 structured schemas)
+* **Authentication**: Stateless JSON Web Tokens (JWT) + bcryptjs
+* **Caching**: Multi-tier caching layer (in-memory LRU with Redis fallback wrapper)
+* **Security & Middleware**: CORS, Morgan, Helmet, express-rate-limit
+
+### DevOps & Infrastructure
+* **Frontend Hosting**: Vercel
+* **Backend Hosting**: Render
+* **Keep-Alive Automation**: GitHub Actions ([keep-alive.yml](.github/workflows/keep-alive.yml)) running 24/7 every 5 minutes
 
 ---
 
-## Core Features
+## 🚀 One-Click Demo Access
 
-1. **Dynamic Menu Viewer**: Displays standard vegetarian menu items alongside special paid extras. It dynamically selects the initial active meal (Breakfast, Lunch, Snacks, or Dinner) based on the user's local time.
-2. **Meal Rating & Feedback System**: Allows students to submit reviews for individual served items, including star ratings and written reviews.
-3. **Live Polls**: Real-time evaluation (delicious vs. disappointing) of today's served meals directly from the dashboard.
-4. **Mess Switching**: Digital request portal allowing students to submit dining reallocation requests.
-5. **Administrative Controls**: Tools for mess officials to log leftover food waste weight (in kg) and upload daily extras.
-6. **System Announcements**: Target-audience restricted announcement banners posted by administrators.
-7. **Analytics**: Rich charts mapping out rating trends, food waste log frequency, and poll distribution (likes vs. dislikes).
-8. **Universal Theme Support**: Warm off-white light mode theme (default) alongside dark mode toggling.
+You can explore the live deployment immediately without needing college credentials:
+
+1. Open [https://mealsync-mu.vercel.app/login](https://mealsync-mu.vercel.app/login)
+2. Click the **"Use Student Demo Account"** button to auto-fill testing credentials, or log in manually:
+
+| Role | Email | Password | Permissions |
+| :--- | :--- | :--- | :--- |
+| **Student** | `cs23i1028@iiitdm.ac.in` | `password123` | View menus, rate dishes, vote in polls, submit switch requests |
+| **Admin / Warden** | `admin@iiitdm.ac.in` | `password123` | Waste trends, rating analytics, manage switch requests, announcements |
+| **Mess Sai Official** | `mess1@iiitdm.ac.in` | `password123` | Log waste records, manage extras for Dining Hall A |
+| **Mess Sheila Official** | `mess2@iiitdm.ac.in` | `password123` | Log waste records, manage extras for Dining Hall B |
 
 ---
 
-## Installation and Local Setup
+## 💻 Local Development Setup
 
 ### Prerequisites
-* Node.js (version 18 or above recommended)
-* MongoDB (Atlas cluster or a running local MongoDB instance)
+* Node.js (v18 or higher recommended)
+* MongoDB (Atlas URI or local MongoDB instance)
 
-### Backend Configuration
-1. Navigate to the server folder:
-   ```bash
-   cd server
-   ```
-2. Install dependencies:
-   ```bash
-   npm install
-   ```
-3. Create a `.env` file in the `server` directory and define the following variables:
-   ```env
-   PORT=5000
-   MONGODB_URI=your_mongodb_connection_uri
-   JWT_SECRET=your_jwt_secret_key
-   NEXTAUTH_SECRET=your_nextauth_secret_key
-   CLIENT_URL=http://localhost:3000
-   NODE_ENV=development
-   ```
-
-### Frontend Configuration
-1. Navigate to the client folder:
-   ```bash
-   cd client
-   ```
-2. Install dependencies:
-   ```bash
-   npm install
-   ```
-3. Create a `.env.local` file in the `client` directory:
-   ```env
-   NEXT_PUBLIC_API_URL=http://localhost:5000/api
-   NEXTAUTH_URL=http://localhost:3000
-   NEXTAUTH_SECRET=your_nextauth_secret_key
-   ```
-
----
-
-## Database Seeding
-
-To populate initial data (messes, menus, admin, official, and student accounts), run the seeding script in the server directory:
+### 1. Backend Setup
 ```bash
 cd server
+npm install
+```
+
+Create a `.env` file in `server/`:
+```env
+PORT=5000
+MONGODB_URI=your_mongodb_connection_uri
+JWT_SECRET=your_jwt_secret_key
+NEXTAUTH_SECRET=your_nextauth_secret_key
+CLIENT_URL=http://localhost:3000
+NODE_ENV=development
+```
+
+Seed the database with default menus, users, and mess halls:
+```bash
 npm run seed
 ```
 
-### Seeding Accounts
-After seeding, you can log in with the following credentials:
-* **Admin**: `admin@iiitdm.ac.in` / `password123`
-* **Mess Sai Official**: `mess1@iiitdm.ac.in` / `password123`
-* **Mess Sheila Official**: `mess2@iiitdm.ac.in` / `password123`
-* **Student**: `cs23i1028@iiitdm.ac.in` / `password123`
+Start the API server:
+```bash
+npm run dev
+```
+
+### 2. Frontend Setup
+```bash
+cd client
+npm install
+```
+
+Create a `.env.local` file in `client/`:
+```env
+NEXT_PUBLIC_API_URL=http://localhost:5000/api
+NEXTAUTH_URL=http://localhost:3000
+NEXTAUTH_SECRET=your_nextauth_secret_key
+```
+
+Start the Next.js dev server:
+```bash
+npm run dev
+```
+
+The application will be live at `http://localhost:3000` connected to the API on `http://localhost:5000`.
 
 ---
 
-## Running the Application Locally
-
-Start the backend API server:
-```bash
-cd server
-npm run dev
-```
-
-Start the frontend Next.js development server:
-```bash
-cd client
-npm run dev
-```
-
-The frontend application will be accessible at `http://localhost:3000`. The backend API runs on `http://localhost:5000`.
+## 📄 License
+This project is licensed under the MIT License. Designed and built with ❤️ for IIITDM Kancheepuram.
