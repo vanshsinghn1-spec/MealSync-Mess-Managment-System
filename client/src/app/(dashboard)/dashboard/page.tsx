@@ -27,6 +27,7 @@ import {
 import Link from "next/link";
 import api from "@/lib/api";
 import FoodIndicator from "@/components/layout/FoodIndicator";
+import { getCurrentMealId } from "@/lib/utils";
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 import { Badge } from "@/components/ui/Badge";
@@ -78,19 +79,7 @@ function StudentDashboard({ userMessId }: { userMessId: any }) {
   const [menuItems, setMenuItems] = useState<any[]>([]);
 
   useEffect(() => {
-    const getCurrentMealByTime = (): string => {
-      const hour = new Date().getHours();
-      if (hour >= 0 && hour < 9) {
-        return "breakfast";
-      } else if (hour >= 9 && hour < 14) {
-        return "lunch";
-      } else if (hour >= 14 && hour < 18) {
-        return "snacks";
-      } else {
-        return "dinner";
-      }
-    };
-    setActiveMeal(getCurrentMealByTime());
+    setActiveMeal(getCurrentMealId());
   }, []);
   const [nonVegItems, setNonVegItems] = useState<any[]>([]);
   const [hasVoted, setHasVoted] = useState<string | null>(null);

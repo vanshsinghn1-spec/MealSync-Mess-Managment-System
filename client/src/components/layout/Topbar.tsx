@@ -5,6 +5,8 @@ import { useTheme } from "@/components/providers/ThemeProvider";
 import { useSession } from "next-auth/react";
 import Link from "next/link";
 
+import { getLiveServingMeal } from "@/lib/utils";
+
 export function Topbar() {
   const { theme, toggle } = useTheme();
   const { data: session } = useSession();
@@ -13,17 +15,8 @@ export function Topbar() {
   const hour = new Date().getHours();
   const greeting = hour < 12 ? "Good morning" : hour < 17 ? "Good afternoon" : "Good evening";
 
-  // Determine current meal by time
-  const currentMealName =
-    hour >= 7 && hour < 10
-      ? "Breakfast"
-      : hour >= 12 && hour < 15
-      ? "Lunch"
-      : hour >= 17 && hour < 19
-      ? "Snacks"
-      : hour >= 19 && hour < 22
-      ? "Dinner"
-      : null;
+  // Determine currently active live meal
+  const currentMealName = getLiveServingMeal();
 
   return (
     <header className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6 sm:mb-8">

@@ -19,34 +19,41 @@ function getISTDate() {
 
 /**
  * Detect current meal based on IST time
+ * Breakfast: 7:00 AM – 9:30 AM (420 – 570 mins)
+ * Lunch:     12:00 PM – 2:30 PM (720 – 870 mins)
+ * Snacks:    4:45 PM – 6:00 PM (1005 – 1080 mins)
+ * Dinner:    7:00 PM – 9:30 PM (1140 – 1290 mins)
  */
 function getCurrentMeal() {
-  const hour = getISTTime().getHours();
+  const ist = getISTTime();
+  const mins = ist.getHours() * 60 + ist.getMinutes();
   const { meals } = config;
 
-  if (hour >= meals.breakfast.start && hour < meals.breakfast.end) return 'breakfast';
-  if (hour >= meals.lunch.start && hour < meals.lunch.end) return 'lunch';
-  if (hour >= meals.snacks.start && hour < meals.snacks.end) return 'snacks';
-  if (hour >= meals.dinner.start && hour < meals.dinner.end) return 'dinner';
+  // Active meal checks
+  if (mins >= meals.breakfast.startMinutes && mins < meals.breakfast.endMinutes) return 'breakfast';
+  if (mins >= meals.lunch.startMinutes && mins < meals.lunch.endMinutes) return 'lunch';
+  if (mins >= meals.snacks.startMinutes && mins < meals.snacks.endMinutes) return 'snacks';
+  if (mins >= meals.dinner.startMinutes && mins < meals.dinner.endMinutes) return 'dinner';
 
-  // Outside meal hours — return the next upcoming meal
-  if (hour < meals.breakfast.start) return 'breakfast';
-  if (hour < meals.lunch.start) return 'lunch';
-  if (hour < meals.snacks.start) return 'snacks';
-  if (hour < meals.dinner.start) return 'dinner';
+  // Outside meal hours — return the upcoming meal
+  if (mins < meals.breakfast.startMinutes) return 'breakfast';
+  if (mins < meals.lunch.startMinutes) return 'lunch';
+  if (mins < meals.snacks.startMinutes) return 'snacks';
+  if (mins < meals.dinner.startMinutes) return 'dinner';
 
-  return 'breakfast'; // After dinner, show tomorrow's breakfast
+  return 'breakfast'; // After dinner (after 21:30), show tomorrow's breakfast
 }
 
 /**
  * Check if a meal is currently being served
  */
 function isServingTime() {
-  const hour = getISTTime().getHours();
+  const ist = getISTTime();
+  const mins = ist.getHours() * 60 + ist.getMinutes();
   const { meals } = config;
 
   return Object.values(meals).some(
-    (m) => hour >= m.start && hour < m.end
+    (m) => mins >= m.startMinutes && mins < m.endMinutes
   );
 }
 

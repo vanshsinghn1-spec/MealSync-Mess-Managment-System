@@ -8,6 +8,7 @@ import { Card } from "@/components/ui/Card";
 import { Badge } from "@/components/ui/Badge";
 import { Tabs } from "@/components/ui/Tabs";
 import { useTodayMenu } from "@/hooks/useMenuData";
+import { MEAL_SCHEDULE } from "@/lib/utils";
 
 export default function TodayMenuPage() {
   const { data: session } = useSession();
@@ -94,7 +95,7 @@ export default function TodayMenuPage() {
                 <div>
                   <h3 className="text-lg font-bold text-[var(--ink)] capitalize font-display">{activeMeal} Details</h3>
                   <p className="text-xs text-[var(--ink-muted)] mt-0.5">
-                    {day} ({weekType.toUpperCase()} Week)
+                    {day} ({weekType.toUpperCase()} Week) {MEAL_SCHEDULE[activeMeal as keyof typeof MEAL_SCHEDULE]?.time ? `· ${MEAL_SCHEDULE[activeMeal as keyof typeof MEAL_SCHEDULE]?.time}` : ""}
                   </p>
                 </div>
                 <Badge variant="default" className="text-[10px] uppercase font-bold">

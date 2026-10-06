@@ -7,6 +7,7 @@ import FoodIndicator from "@/components/layout/FoodIndicator";
 import { Card } from "@/components/ui/Card";
 import { Tabs } from "@/components/ui/Tabs";
 import { useTodayMenu, useWeeklyMenu } from "@/hooks/useMenuData";
+import { MEAL_SCHEDULE } from "@/lib/utils";
 
 const getMealHeaderIcon = (meal: string) => {
   switch (meal) {
@@ -129,7 +130,12 @@ export default function WeeklyMenuPage() {
                     return (
                       <div key={meal} className="p-4 bg-[var(--surface-2)] border border-[var(--border)] hover:border-[var(--accent)]/15 rounded-2xl space-y-3 transition-colors duration-200 group">
                         <div className="text-[10px] text-[var(--ink-muted)] font-bold uppercase tracking-wider capitalize flex items-center justify-between">
-                          <span>{meal}</span>
+                          <div>
+                            <span className="text-[var(--ink)]">{meal}</span>
+                            <span className="block text-[9px] font-medium text-[var(--ink-muted)] normal-case tracking-normal mt-0.5">
+                              {MEAL_SCHEDULE[meal as keyof typeof MEAL_SCHEDULE]?.time}
+                            </span>
+                          </div>
                           <span className="flex-shrink-0">
                             {getMealHeaderIcon(meal)}
                           </span>

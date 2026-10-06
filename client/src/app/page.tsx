@@ -46,10 +46,10 @@ interface PollStats {
 }
 
 const mealConfigs = [
-  { id: "breakfast", name: "Breakfast", time: "07:30 – 09:00", icon: Sun, accent: "bg-[#f8d9a7] text-[#8c5916]" },
-  { id: "lunch", name: "Lunch", time: "12:00 – 14:00", icon: CloudSun, accent: "bg-[#c8e5d3] text-[#1c633a]" },
-  { id: "snacks", name: "Snacks", time: "17:00 – 18:00", icon: Coffee, accent: "bg-[#e1d4f3] text-[#552d87]" },
-  { id: "dinner", name: "Dinner", time: "19:30 – 21:00", icon: Moon, accent: "bg-[#c8d8ed] text-[#244b7a]" },
+  { id: "breakfast", name: "Breakfast", time: "07:00 – 09:30 AM", icon: Sun, accent: "bg-[#f8d9a7] text-[#8c5916]" },
+  { id: "lunch", name: "Lunch", time: "12:00 – 02:30 PM", icon: CloudSun, accent: "bg-[#c8e5d3] text-[#1c633a]" },
+  { id: "snacks", name: "Snacks", time: "04:45 – 06:00 PM", icon: Coffee, accent: "bg-[#e1d4f3] text-[#552d87]" },
+  { id: "dinner", name: "Dinner", time: "07:00 – 09:30 PM", icon: Moon, accent: "bg-[#c8d8ed] text-[#244b7a]" },
 ];
 
 export default function LandingPage() {
