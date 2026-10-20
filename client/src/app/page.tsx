@@ -25,9 +25,12 @@ import {
   Bell,
   Menu as MenuIcon,
   X,
-  ChevronDown
+  ChevronDown,
+  AlertTriangle,
+  Megaphone
 } from "lucide-react";
 import FoodIndicator from "@/components/layout/FoodIndicator";
+import { AnnouncementBanner } from "@/components/layout/AnnouncementBanner";
 import { useTheme } from "@/components/providers/ThemeProvider";
 import { Button } from "@/components/ui/Button";
 import { Badge } from "@/components/ui/Badge";
@@ -125,22 +128,48 @@ export default function LandingPage() {
     }
   }, [selectedMess, activeMealId]);
 
-  // Notifications
+  // Live public notifications (including SAC email announcements)
   useEffect(() => {
-    setNotifications([
-      {
-        _id: "1",
-        title: "Special Dinner Scheduled",
-        message: "A grand feast dinner is scheduled for Wednesday night in both Mess Sai and Mess Sheila.",
-        date: "06 Oct",
-      },
-      {
-        _id: "2",
-        title: "Mess Switching Window Open",
-        message: "Students can request to switch between Mess Sai and Mess Sheila through the student portal.",
-        date: "05 Oct",
-      },
-    ]);
+    async function fetchPublicNotifications() {
+      try {
+        const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api";
+        const res = await axios.get(`${API_BASE}/notifications/public`);
+        if (Array.isArray(res.data) && res.data.length > 0) {
+          const formatted = res.data.map((n: any) => ({
+            _id: n._id,
+            title: n.title,
+            message: n.message,
+            category: n.category,
+            priority: n.priority,
+            source: n.source,
+            date: new Date(n.createdAt).toLocaleDateString("en-IN", { day: "2-digit", month: "short" }),
+          }));
+          setNotifications(formatted);
+          return;
+        }
+      } catch (err) {
+        // Fallback to initial campus notices if server is waking up
+      }
+
+      setNotifications([
+        {
+          _id: "1",
+          title: "Special Dinner Scheduled",
+          message: "A grand feast dinner is scheduled for Wednesday night in both Mess Sai and Mess Sheila.",
+          date: "06 Oct",
+          category: "general"
+        },
+        {
+          _id: "2",
+          title: "Mess Switching Window Open",
+          message: "Students can request to switch between Mess Sai and Mess Sheila through the student portal.",
+          date: "05 Oct",
+          category: "general"
+        },
+      ]);
+    }
+
+    fetchPublicNotifications();
   }, []);
 
   // Quick Poll Vote
@@ -325,8 +354,13 @@ export default function LandingPage() {
         </AnimatePresence>
       </header>
 
+      {/* Top Banner Alert (SAC Email / Emergency notices) */}
+      <div className="mx-auto max-w-[1440px] px-4 sm:px-8 lg:px-12 pt-4">
+        <AnnouncementBanner />
+      </div>
+
       {/* -------------------- HERO SECTION -------------------- */}
-      <section className="mx-auto max-w-[1440px] px-4 sm:px-8 lg:px-12 pt-6 sm:pt-8">
+      <section className="mx-auto max-w-[1440px] px-4 sm:px-8 lg:px-12 pt-4 sm:pt-6">
         <div className="relative overflow-hidden rounded-[2.2rem] bg-[#173b2a] px-6 py-14 text-white sm:px-12 lg:px-16 lg:py-20 shadow-2xl">
           <div className="hero-glow" />
 
@@ -729,24 +763,61 @@ export default function LandingPage() {
 
           {/* Notices Feed */}
           <div className="flex flex-col divide-y divide-[var(--border)] rounded-[2rem] border border-[var(--border)] bg-[var(--surface)] px-6 sm:px-8 shadow-sm">
-            {notifications.map((notif) => (
-              <article key={notif._id} className="flex gap-4 sm:gap-5 py-6">
-                <span className="flex size-11 shrink-0 items-center justify-center rounded-2xl bg-[#f8d9a7] text-[#8c5916]">
-                  <CalendarDays className="size-5" />
-                </span>
-                <div>
-                  <div className="flex flex-wrap items-center gap-2.5">
-                    <h3 className="font-bold text-sm sm:text-base text-[var(--ink)]">{notif.title}</h3>
-                    <span className="text-[10px] font-bold uppercase tracking-widest text-[var(--ink-muted)]">
-                      {notif.date}
-                    </span>
+            {notifications.map((notif) => {
+              const isUrgent = notif.priority === "urgent" || notif.category === "emergency";
+              const isMenu = notif.category === "menu_substitution";
+              const isSac = notif.source === "sac_email" || notif.category === "sac_update";
+
+              return (
+                <article key={notif._id} className="flex gap-4 sm:gap-5 py-6">
+                  <span
+                    className={`flex size-11 shrink-0 items-center justify-center rounded-2xl ${
+                      isUrgent
+                        ? "bg-red-100 text-red-700 dark:bg-red-950/60 dark:text-red-400"
+                        : isMenu
+                        ? "bg-[#c8e5d3] text-[#1c633a] dark:bg-[#152a1e] dark:text-[#d9f36b]"
+                        : isSac
+                        ? "bg-indigo-100 text-indigo-700 dark:bg-indigo-950/60 dark:text-indigo-400"
+                        : "bg-[#f8d9a7] text-[#8c5916]"
+                    }`}
+                  >
+                    {isUrgent ? (
+                      <AlertTriangle className="size-5" />
+                    ) : isMenu ? (
+                      <Utensils className="size-5" />
+                    ) : isSac ? (
+                      <Megaphone className="size-5" />
+                    ) : (
+                      <CalendarDays className="size-5" />
+                    )}
+                  </span>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex flex-wrap items-center gap-2">
+                      <h3 className="font-bold text-sm sm:text-base text-[var(--ink)] leading-snug">{notif.title}</h3>
+                      {isUrgent ? (
+                        <span className="text-[9px] uppercase font-extrabold px-1.5 py-0.5 rounded bg-red-100 text-red-700 dark:bg-red-950 dark:text-red-300">
+                          Urgent
+                        </span>
+                      ) : isMenu ? (
+                        <span className="text-[9px] uppercase font-bold px-1.5 py-0.5 rounded bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300">
+                          Menu Change
+                        </span>
+                      ) : isSac ? (
+                        <span className="text-[9px] uppercase font-bold px-1.5 py-0.5 rounded bg-indigo-100 text-indigo-800 dark:bg-indigo-950 dark:text-indigo-300">
+                          SAC Notice
+                        </span>
+                      ) : null}
+                      <span className="text-[10px] font-bold uppercase tracking-widest text-[var(--ink-muted)] ml-auto">
+                        {notif.date}
+                      </span>
+                    </div>
+                    <p className="mt-1.5 text-xs sm:text-sm leading-relaxed text-[var(--ink-muted)] line-clamp-3">
+                      {notif.message}
+                    </p>
                   </div>
-                  <p className="mt-1.5 text-xs sm:text-sm leading-relaxed text-[var(--ink-muted)]">
-                    {notif.message}
-                  </p>
-                </div>
-              </article>
-            ))}
+                </article>
+              );
+            })}
 
             <article className="flex gap-4 sm:gap-5 py-6">
               <span className="flex size-11 shrink-0 items-center justify-center rounded-2xl bg-[#c8e5d3] text-[#1c633a]">

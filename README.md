@@ -39,6 +39,7 @@ MealSync features a server-authoritative time-aware scheduling engine with minut
 7. **Role-Based Access Control (RBAC)**: Secure multi-tier authorization for **Students**, **Mess Officials**, and **Chief Warden / SAC Administrators**.
 8. **Modern Responsive Design**: Bespoke design system built on Deep Forest Green (`#173b2a`), Electric Lime (`#d9f36b`), warm neutral cream, Framer Motion micro-animations, and persistent dark/light theme switching.
 9. **Zero Cold Starts**: Continuous GitHub Actions cron workflow pings the Render backend every 5 minutes 24/7, keeping cloud containers awake and in-memory caches warm around the clock.
+10. **Automated SAC Email Announcement Parser**: Inbound email webhook pipeline that processes official university mess updates from `sac-mess@iiitdm.ac.in` (such as temporary 1-day menu changes, emergency water/maintenance notices, and special dinner feasts), cleans disclaimers, detects urgency, and broadcasts real-time announcement banners across the portal.
 
 ---
 
@@ -57,6 +58,7 @@ MealSync features a server-authoritative time-aware scheduling engine with minut
 * **Database**: MongoDB Atlas via Mongoose ODM (11 structured schemas)
 * **Authentication**: Stateless JSON Web Tokens (JWT) + bcryptjs
 * **Caching**: Multi-tier caching layer (in-memory LRU with Redis fallback wrapper)
+* **Inbound Webhook**: Automated SAC email announcement parser with sender verification and urgency categorization (`/api/notifications/inbound-email`)
 * **Security & Middleware**: CORS, Morgan, Helmet, express-rate-limit
 
 ### DevOps & Infrastructure
