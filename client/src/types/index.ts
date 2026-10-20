@@ -80,6 +80,12 @@ export interface Notification {
   title: string;
   message: string;
   recipientType: "all" | "students" | "mess_officials";
+  category?: "general" | "sac_update" | "emergency" | "menu_substitution";
+  source?: "admin" | "sac_email" | "system";
+  priority?: "normal" | "urgent" | "high";
+  isBanner?: boolean;
+  bannerActiveUntil?: string;
+  senderEmail?: string;
   createdAt: string;
 }
 

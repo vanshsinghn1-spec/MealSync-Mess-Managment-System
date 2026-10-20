@@ -6,6 +6,7 @@ const WasteRecord = require('../models/WasteRecord');
 const MessHall = require('../models/MessHall');
 const { authenticate, roleGuard } = require('../middleware/auth');
 const { getISTDate } = require('../utils/timeUtils');
+const sacEmailService = require('../services/sacEmailService');
 
 const router = express.Router();
 
@@ -44,6 +45,85 @@ router.post('/waste', authenticate, roleGuard('mess_official', 'admin'), async (
   }
 });
 
+// POST /api/notifications/inbound-email — Inbound email webhook parser (SendGrid / Postmark / generic relay)
+router.post('/notifications/inbound-email', async (req, res, next) => {
+  try {
+    const result = await sacEmailService.handleInboundSacEmailWebhook(
+      req.body,
+      req.query,
+      req.headers
+    );
+
+    if (result.status === 'ignored') {
+      return res.status(200).json(result);
+    }
+
+    res.status(201).json(result);
+  } catch (error) {
+    if (error.statusCode) {
+      return res.status(error.statusCode).json({ error: error.message });
+    }
+    next(error);
+  }
+});
+
+// POST /api/notifications/simulate-sac — Developer & demo simulator for SAC emails
+router.post('/notifications/simulate-sac', async (req, res, next) => {
+  try {
+    const result = await sacEmailService.simulateSacEmail(req.body);
+    res.status(201).json(result);
+  } catch (error) {
+    next(error);
+  }
+});
+
+// GET /api/notifications/banners — Active top banner alerts across the platform
+router.get('/notifications/banners', async (req, res, next) => {
+  try {
+    const now = new Date();
+    const banners = await Notification.find({
+      isBanner: true,
+      expiresAt: { $gt: now },
+      $or: [
+        { bannerActiveUntil: { $exists: false } },
+        { bannerActiveUntil: null },
+        { bannerActiveUntil: { $gt: now } }
+      ]
+    })
+      .sort({ createdAt: -1 })
+      .limit(5);
+
+    // Sort urgent/high priority first
+    const priorityWeight = { urgent: 3, high: 2, normal: 1 };
+    banners.sort((a, b) => {
+      const weightA = priorityWeight[a.priority] || 1;
+      const weightB = priorityWeight[b.priority] || 1;
+      if (weightB !== weightA) return weightB - weightA;
+      return new Date(b.createdAt) - new Date(a.createdAt);
+    });
+
+    res.json(banners);
+  } catch (error) {
+    next(error);
+  }
+});
+
+// GET /api/notifications/public — Public notifications for landing page
+router.get('/notifications/public', async (req, res, next) => {
+  try {
+    const notifications = await Notification.find({
+      recipientType: { $in: ['all', 'students'] },
+      expiresAt: { $gt: new Date() }
+    })
+      .sort({ createdAt: -1 })
+      .limit(8);
+
+    res.json(notifications);
+  } catch (error) {
+    next(error);
+  }
+});
+
 // GET /api/notifications — Get notifications for current user
 router.get('/notifications', authenticate, async (req, res, next) => {
   try {
@@ -52,11 +132,20 @@ router.get('/notifications', authenticate, async (req, res, next) => {
     if (role === 'student') recipientTypes.push('students');
     if (role === 'mess_official') recipientTypes.push('mess_officials');
 
-    const notifications = await Notification.find({
+    const filter = {
       recipientType: { $in: recipientTypes },
-    })
+    };
+
+    if (req.query.category) {
+      filter.category = req.query.category;
+    }
+    if (req.query.source) {
+      filter.source = req.query.source;
+    }
+
+    const notifications = await Notification.find(filter)
       .sort({ createdAt: -1 })
-      .limit(20);
+      .limit(30);
 
     res.json(notifications);
   } catch (error) {

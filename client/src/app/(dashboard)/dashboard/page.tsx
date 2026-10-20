@@ -266,18 +266,44 @@ function StudentDashboard({ userMessId }: { userMessId: any }) {
 
         {/* Notifications */}
         <Card padding="lg">
-          <h3 className="text-sm font-bold text-[var(--ink)] flex items-center gap-2 uppercase tracking-wide mb-4 font-display">
-            <Bell size={16} className="text-[var(--accent)]" />
-            Latest Announcements
-          </h3>
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="text-sm font-bold text-[var(--ink)] flex items-center gap-2 uppercase tracking-wide font-display">
+              <Bell size={16} className="text-[var(--accent)]" />
+              Latest Announcements
+            </h3>
+            <Link href="/notifications" className="text-[11px] font-bold text-[var(--ink-muted)] hover:text-[var(--ink)] transition-colors">
+              View all
+            </Link>
+          </div>
           <div className="space-y-3">
             {notifications.length > 0 ? (
-              notifications.slice(0, 3).map((notif, idx) => (
-                <div key={idx} className="border-b border-[var(--border)] pb-3 last:border-none last:pb-0 space-y-1">
-                  <div className="text-xs font-bold text-[var(--ink)]">{notif.title}</div>
-                  <p className="text-[11px] text-[var(--ink-muted)] leading-normal">{notif.message}</p>
-                </div>
-              ))
+              notifications.slice(0, 3).map((notif, idx) => {
+                const isUrgent = notif.priority === "urgent" || notif.category === "emergency";
+                const isMenu = notif.category === "menu_substitution";
+                const isSac = notif.source === "sac_email" || notif.category === "sac_update";
+
+                return (
+                  <div key={idx} className="border-b border-[var(--border)] pb-3 last:border-none last:pb-0 space-y-1">
+                    <div className="flex items-center justify-between gap-2 flex-wrap">
+                      <div className="text-xs font-bold text-[var(--ink)] leading-snug">{notif.title}</div>
+                      {isUrgent ? (
+                        <span className="text-[9px] uppercase font-extrabold px-1.5 py-0.5 rounded bg-red-100 text-red-700 dark:bg-red-950 dark:text-red-300">
+                          Urgent
+                        </span>
+                      ) : isMenu ? (
+                        <span className="text-[9px] uppercase font-bold px-1.5 py-0.5 rounded bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300">
+                          Menu Change
+                        </span>
+                      ) : isSac ? (
+                        <span className="text-[9px] uppercase font-bold px-1.5 py-0.5 rounded bg-indigo-100 text-indigo-800 dark:bg-indigo-950 dark:text-indigo-300">
+                          SAC Notice
+                        </span>
+                      ) : null}
+                    </div>
+                    <p className="text-[11px] text-[var(--ink-muted)] leading-normal line-clamp-2">{notif.message}</p>
+                  </div>
+                );
+              })
             ) : (
               <div className="text-center py-6 text-[var(--ink-muted)] text-xs">No alerts posted.</div>
             )}
