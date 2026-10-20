@@ -40,7 +40,7 @@ export default function NotificationsPage() {
       await api.post("/notifications/simulate-sac", {
         subject: "Urgent: Menu change for Dinner today (Special Feast)",
         message: "Due to fresh vendor supply deliveries, Special Paneer Butter Masala, Butter Naan, and Gulab Jamun will be served instead of Mixed Veg Sabzi across Jasmine and Ashoka Mess.",
-        from: "SAC Mess Affairs <sac-mess@iiitdm.ac.in>"
+        from: "SAC Mess Affairs <mess.affairs@iiitdm.ac.in>"
       });
       await loadNotifications();
     } catch (err) {

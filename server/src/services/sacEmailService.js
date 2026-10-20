@@ -12,6 +12,7 @@ const Notification = require("../models/Notification");
  * Normalized official SAC email patterns and keywords
  */
 const SAC_SENDER_PATTERNS = [
+  "mess.affairs@iiitdm.ac.in",
   "sac-mess@iiitdm.ac.in",
   "mess.sac@iiitdm.ac.in",
   "sac@iiitdm.ac.in",
@@ -300,7 +301,7 @@ async function handleInboundSacEmailWebhook(rawPayload, query = {}, headers = {}
 async function simulateSacEmail({
   subject = "Urgent: Menu change for Dinner today",
   message = "Please note that Paneer Butter Masala will be served instead of Mixed Veg Korma for Dinner today in Jasmine Mess due to supply delivery changes.",
-  from = "SAC Mess Affairs <sac-mess@iiitdm.ac.in>",
+  from = "SAC Mess Affairs <mess.affairs@iiitdm.ac.in>",
   priorityOverride = null
 } = {}) {
   const result = await handleInboundSacEmailWebhook({
