@@ -3,7 +3,7 @@
 import { useSession } from "next-auth/react";
 import { useState, useEffect } from "react";
 import api from "@/lib/api";
-import { Bell, AlertTriangle, Utensils, Megaphone, ShieldCheck, Mail, Sparkles } from "lucide-react";
+import { Bell, AlertTriangle, Utensils, Megaphone, ShieldCheck } from "lucide-react";
 import { Card } from "@/components/ui/Card";
 import { Badge } from "@/components/ui/Badge";
 import { Notification } from "@/types";
@@ -33,23 +33,6 @@ export default function NotificationsPage() {
     }
   }, [session]);
 
-  // Quick simulation trigger for testing Issue #1 live
-  const handleSimulateSacEmail = async () => {
-    try {
-      setIsSimulating(true);
-      await api.post("/notifications/simulate-sac", {
-        subject: "Urgent: Menu change for Dinner today (Special Feast)",
-        message: "Due to fresh vendor supply deliveries, Special Paneer Butter Masala, Butter Naan, and Gulab Jamun will be served instead of Mixed Veg Sabzi across Jasmine and Ashoka Mess.",
-        from: "SAC Mess Affairs <mess.affairs@iiitdm.ac.in>"
-      });
-      await loadNotifications();
-    } catch (err) {
-      console.error("Error simulating SAC email:", err);
-    } finally {
-      setIsSimulating(false);
-    }
-  };
-
   // Filter based on selected tab
   const filteredNotifications = notifications.filter((notif) => {
     if (activeTab === "all") return true;
@@ -64,27 +47,14 @@ export default function NotificationsPage() {
 
   return (
     <div className="space-y-8 animate-fade-in max-w-4xl">
-      {/* Page Title & Simulator Button */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <div>
-          <h1 className="text-2xl font-extrabold tracking-tight text-[var(--ink)] sm:text-3xl font-display">
-            Announcements & Alerts
-          </h1>
-          <p className="text-sm text-[var(--ink-muted)] mt-1">
-            Real-time mess updates from SAC - Mess Affairs and administrative team
-          </p>
-        </div>
-
-        {/* Demo / Test simulation button */}
-        <button
-          onClick={handleSimulateSacEmail}
-          disabled={isSimulating}
-          className="inline-flex items-center gap-2 px-3.5 py-2 rounded-2xl bg-[var(--surface-2)] border border-[var(--border)] text-xs font-bold text-[var(--ink)] hover:bg-[var(--surface-3)] transition-all shadow-xs self-start sm:self-auto cursor-pointer disabled:opacity-50"
-          title="Simulate receiving an official SAC mess update email"
-        >
-          <Mail size={14} className="text-[var(--accent)]" />
-          <span>{isSimulating ? "Parsing..." : "Simulate SAC Email"}</span>
-        </button>
+      {/* Page Title */}
+      <div>
+        <h1 className="text-2xl font-extrabold tracking-tight text-[var(--ink)] sm:text-3xl font-display">
+          Announcements & Alerts
+        </h1>
+        <p className="text-sm text-[var(--ink-muted)] mt-1">
+          Real-time mess circulars from mess.affairs@iiitdm.ac.in and administrative team
+        </p>
       </div>
 
       {/* Tabs */}

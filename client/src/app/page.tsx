@@ -104,7 +104,10 @@ export default function LandingPage() {
   useEffect(() => {
     async function fetchSidebarData() {
       try {
-        const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api";
+        const API_BASE = process.env.NEXT_PUBLIC_API_URL || 
+          (typeof window !== "undefined" && !window.location.hostname.includes("localhost")
+            ? "https://mealsync-mess-managment-system.onrender.com/api"
+            : "http://localhost:5000/api");
         const dbMessId = selectedMess === "mess-1" ? "60d07e6181f9f25712e3e6f1" : "60d07e6181f9f25712e3e6f2";
 
         const [ratingsRes, pollRes] = await Promise.allSettled([
@@ -128,13 +131,17 @@ export default function LandingPage() {
     }
   }, [selectedMess, activeMealId]);
 
-  // Live public notifications (including SAC email announcements)
+  // Live public notifications (strictly real SAC email announcements from DB)
   useEffect(() => {
     async function fetchPublicNotifications() {
       try {
-        const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api";
+        const API_BASE = process.env.NEXT_PUBLIC_API_URL || 
+          (typeof window !== "undefined" && !window.location.hostname.includes("localhost")
+            ? "https://mealsync-mess-managment-system.onrender.com/api"
+            : "http://localhost:5000/api");
+
         const res = await axios.get(`${API_BASE}/notifications/public`);
-        if (Array.isArray(res.data) && res.data.length > 0) {
+        if (Array.isArray(res.data)) {
           const formatted = res.data.map((n: any) => ({
             _id: n._id,
             title: n.title,
@@ -148,25 +155,9 @@ export default function LandingPage() {
           return;
         }
       } catch (err) {
-        // Fallback to initial campus notices if server is waking up
+        // Clear if error, never display fake samples
+        setNotifications([]);
       }
-
-      setNotifications([
-        {
-          _id: "1",
-          title: "Special Dinner Scheduled",
-          message: "A grand feast dinner is scheduled for Wednesday night in both Mess Sai and Mess Sheila.",
-          date: "06 Oct",
-          category: "general"
-        },
-        {
-          _id: "2",
-          title: "Mess Switching Window Open",
-          message: "Students can request to switch between Mess Sai and Mess Sheila through the student portal.",
-          date: "05 Oct",
-          category: "general"
-        },
-      ]);
     }
 
     fetchPublicNotifications();
@@ -763,61 +754,67 @@ export default function LandingPage() {
 
           {/* Notices Feed */}
           <div className="flex flex-col divide-y divide-[var(--border)] rounded-[2rem] border border-[var(--border)] bg-[var(--surface)] px-6 sm:px-8 shadow-sm">
-            {notifications.map((notif) => {
-              const isUrgent = notif.priority === "urgent" || notif.category === "emergency";
-              const isMenu = notif.category === "menu_substitution";
-              const isSac = notif.source === "sac_email" || notif.category === "sac_update";
+            {notifications.length > 0 ? (
+              notifications.map((notif) => {
+                const isUrgent = notif.priority === "urgent" || notif.category === "emergency";
+                const isMenu = notif.category === "menu_substitution";
+                const isSac = notif.source === "sac_email" || notif.category === "sac_update";
 
-              return (
-                <article key={notif._id} className="flex gap-4 sm:gap-5 py-6">
-                  <span
-                    className={`flex size-11 shrink-0 items-center justify-center rounded-2xl ${
-                      isUrgent
-                        ? "bg-red-100 text-red-700 dark:bg-red-950/60 dark:text-red-400"
-                        : isMenu
-                        ? "bg-[#c8e5d3] text-[#1c633a] dark:bg-[#152a1e] dark:text-[#d9f36b]"
-                        : isSac
-                        ? "bg-indigo-100 text-indigo-700 dark:bg-indigo-950/60 dark:text-indigo-400"
-                        : "bg-[#f8d9a7] text-[#8c5916]"
-                    }`}
-                  >
-                    {isUrgent ? (
-                      <AlertTriangle className="size-5" />
-                    ) : isMenu ? (
-                      <Utensils className="size-5" />
-                    ) : isSac ? (
-                      <Megaphone className="size-5" />
-                    ) : (
-                      <CalendarDays className="size-5" />
-                    )}
-                  </span>
-                  <div className="flex-1 min-w-0">
-                    <div className="flex flex-wrap items-center gap-2">
-                      <h3 className="font-bold text-sm sm:text-base text-[var(--ink)] leading-snug">{notif.title}</h3>
+                return (
+                  <article key={notif._id} className="flex gap-4 sm:gap-5 py-6">
+                    <span
+                      className={`flex size-11 shrink-0 items-center justify-center rounded-2xl ${
+                        isUrgent
+                          ? "bg-red-100 text-red-700 dark:bg-red-950/60 dark:text-red-400"
+                          : isMenu
+                          ? "bg-[#c8e5d3] text-[#1c633a] dark:bg-[#152a1e] dark:text-[#d9f36b]"
+                          : isSac
+                          ? "bg-indigo-100 text-indigo-700 dark:bg-indigo-950/60 dark:text-indigo-400"
+                          : "bg-[#f8d9a7] text-[#8c5916]"
+                      }`}
+                    >
                       {isUrgent ? (
-                        <span className="text-[9px] uppercase font-extrabold px-1.5 py-0.5 rounded bg-red-100 text-red-700 dark:bg-red-950 dark:text-red-300">
-                          Urgent
-                        </span>
+                        <AlertTriangle className="size-5" />
                       ) : isMenu ? (
-                        <span className="text-[9px] uppercase font-bold px-1.5 py-0.5 rounded bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300">
-                          Menu Change
-                        </span>
+                        <Utensils className="size-5" />
                       ) : isSac ? (
-                        <span className="text-[9px] uppercase font-bold px-1.5 py-0.5 rounded bg-indigo-100 text-indigo-800 dark:bg-indigo-950 dark:text-indigo-300">
-                          SAC Notice
+                        <Megaphone className="size-5" />
+                      ) : (
+                        <CalendarDays className="size-5" />
+                      )}
+                    </span>
+                    <div className="flex-1 min-w-0">
+                      <div className="flex flex-wrap items-center gap-2">
+                        <h3 className="font-bold text-sm sm:text-base text-[var(--ink)] leading-snug">{notif.title}</h3>
+                        {isUrgent ? (
+                          <span className="text-[9px] uppercase font-extrabold px-1.5 py-0.5 rounded bg-red-100 text-red-700 dark:bg-red-950 dark:text-red-300">
+                            Urgent
+                          </span>
+                        ) : isMenu ? (
+                          <span className="text-[9px] uppercase font-bold px-1.5 py-0.5 rounded bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300">
+                            Menu Change
+                          </span>
+                        ) : isSac ? (
+                          <span className="text-[9px] uppercase font-bold px-1.5 py-0.5 rounded bg-indigo-100 text-indigo-800 dark:bg-indigo-950 dark:text-indigo-300">
+                            SAC Notice
+                          </span>
+                        ) : null}
+                        <span className="text-[10px] font-bold uppercase tracking-widest text-[var(--ink-muted)] ml-auto">
+                          {notif.date}
                         </span>
-                      ) : null}
-                      <span className="text-[10px] font-bold uppercase tracking-widest text-[var(--ink-muted)] ml-auto">
-                        {notif.date}
-                      </span>
+                      </div>
+                      <p className="mt-1.5 text-xs sm:text-sm leading-relaxed text-[var(--ink-muted)] line-clamp-3">
+                        {notif.message}
+                      </p>
                     </div>
-                    <p className="mt-1.5 text-xs sm:text-sm leading-relaxed text-[var(--ink-muted)] line-clamp-3">
-                      {notif.message}
-                    </p>
-                  </div>
-                </article>
-              );
-            })}
+                  </article>
+                );
+              })
+            ) : (
+              <div className="py-12 text-center text-sm text-[var(--ink-muted)]">
+                No active announcements currently posted. All official circulars from mess.affairs@iiitdm.ac.in will appear here.
+              </div>
+            )}
 
             <article className="flex gap-4 sm:gap-5 py-6">
               <span className="flex size-11 shrink-0 items-center justify-center rounded-2xl bg-[#c8e5d3] text-[#1c633a]">

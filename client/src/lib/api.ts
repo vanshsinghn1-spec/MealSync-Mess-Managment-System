@@ -1,8 +1,18 @@
 import axios from "axios";
 import { getSession, signOut } from "next-auth/react";
 
+const getBaseUrl = () => {
+  if (process.env.NEXT_PUBLIC_API_URL) {
+    return process.env.NEXT_PUBLIC_API_URL;
+  }
+  if (typeof window !== "undefined" && !window.location.hostname.includes("localhost")) {
+    return "https://mealsync-mess-managment-system.onrender.com/api";
+  }
+  return "http://localhost:5000/api";
+};
+
 const api = axios.create({
-  baseURL: process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api",
+  baseURL: getBaseUrl(),
   headers: {
     "Content-Type": "application/json",
   },
