@@ -46,6 +46,10 @@ const notificationSchema = new mongoose.Schema({
     type: String,
     trim: true,
   },
+  gmailMessageId: {
+    type: String,
+    trim: true,
+  },
   createdBy: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'User',
@@ -61,6 +65,7 @@ const notificationSchema = new mongoose.Schema({
 notificationSchema.index({ recipientType: 1, createdAt: -1 });
 notificationSchema.index({ category: 1, createdAt: -1 });
 notificationSchema.index({ isBanner: 1, createdAt: -1 });
+notificationSchema.index({ gmailMessageId: 1 }, { sparse: true });
 notificationSchema.index({ expiresAt: 1 }, { expireAfterSeconds: 0 });
 
 module.exports = mongoose.model('Notification', notificationSchema);

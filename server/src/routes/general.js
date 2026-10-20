@@ -7,6 +7,7 @@ const MessHall = require('../models/MessHall');
 const { authenticate, roleGuard } = require('../middleware/auth');
 const { getISTDate } = require('../utils/timeUtils');
 const sacEmailService = require('../services/sacEmailService');
+const gmailPollingService = require('../services/gmailPollingService');
 
 const router = express.Router();
 
@@ -72,6 +73,44 @@ router.post('/notifications/simulate-sac', async (req, res, next) => {
   try {
     const result = await sacEmailService.simulateSacEmail(req.body);
     res.status(201).json(result);
+  } catch (error) {
+    next(error);
+  }
+});
+
+// GET /api/notifications/gmail-auth-url — Get Google OAuth2 URL
+router.get('/notifications/gmail-auth-url', (req, res) => {
+  try {
+    const url = gmailPollingService.getAuthUrl();
+    res.json({ url });
+  } catch (error) {
+    res.status(400).json({ error: error.message });
+  }
+});
+
+// GET /api/notifications/gmail-callback — Handle OAuth redirect callback
+router.get('/notifications/gmail-callback', async (req, res, next) => {
+  try {
+    const { code } = req.query;
+    if (!code) {
+      return res.status(400).json({ error: 'Missing code query parameter' });
+    }
+    const tokens = await gmailPollingService.exchangeCodeForTokens(code);
+    res.json({
+      status: 'success',
+      message: 'Successfully authenticated with Gmail API. Add GMAIL_REFRESH_TOKEN to your server/.env',
+      refreshToken: tokens.refresh_token
+    });
+  } catch (error) {
+    next(error);
+  }
+});
+
+// POST /api/notifications/poll-gmail — Trigger Gmail poll for mess.affairs@iiitdm.ac.in
+router.post('/notifications/poll-gmail', async (req, res, next) => {
+  try {
+    const result = await gmailPollingService.pollSacEmailsFromGmail(req.body);
+    res.json(result);
   } catch (error) {
     next(error);
   }
