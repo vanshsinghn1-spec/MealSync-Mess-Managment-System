@@ -18,11 +18,28 @@ const MEALSYNC_WEBHOOK_URL = "https://mealsync-mess-managment-system.onrender.co
 const WEBHOOK_SECRET = ""; 
 
 function checkMessAffairsEmails() {
+  // 1. Keep Render backend and menu cache warm (eliminates 15s cold starts!)
+  keepBackendWarm();
+
+  // 2. Check and relay SAC mess affairs emails
   try {
     runWithRetry(processMessAffairsEmails, 2, 2000);
   } catch (err) {
     // Log gracefully so Google Apps Script does not send an alarming crash email
     console.error("Transient error during checkMessAffairsEmails (will auto-retry on next 5-min cycle): " + err.toString());
+  }
+}
+
+/**
+ * Pings the menu endpoint every 5 minutes to keep the Render free tier awake 24/7
+ */
+function keepBackendWarm() {
+  try {
+    UrlFetchApp.fetch("https://mealsync-mess-managment-system.onrender.com/api/menu/today/all", {
+      muteHttpExceptions: true
+    });
+  } catch (e) {
+    // Quietly ignore warm-up errors
   }
 }
 
