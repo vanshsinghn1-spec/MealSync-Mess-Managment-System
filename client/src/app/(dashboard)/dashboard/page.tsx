@@ -32,6 +32,7 @@ import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/com
 import { Button } from "@/components/ui/Button";
 import { Badge } from "@/components/ui/Badge";
 import { Tabs } from "@/components/ui/Tabs";
+import { MenuBufferingLoader } from "@/components/ui/MenuBufferingLoader";
 
 export default function DashboardPage() {
   const { data: session } = useSession();
@@ -81,6 +82,7 @@ function StudentDashboard({ userMessId }: { userMessId: any }) {
   useEffect(() => {
     setActiveMeal(getCurrentMealId());
   }, []);
+  const [isMenuLoading, setIsMenuLoading] = useState(true);
   const [nonVegItems, setNonVegItems] = useState<any[]>([]);
   const [hasVoted, setHasVoted] = useState<string | null>(null);
   const [notifications, setNotifications] = useState<any[]>([]);
@@ -89,6 +91,7 @@ function StudentDashboard({ userMessId }: { userMessId: any }) {
 
   useEffect(() => {
     async function loadData() {
+      setIsMenuLoading(true);
       try {
         // Fetch today's menu
         const menuRes = await api.get(`/menu/today?meal=${activeMeal}`);
@@ -113,6 +116,8 @@ function StudentDashboard({ userMessId }: { userMessId: any }) {
         setSwitchEnabled(statusRes.data.isEnabled);
       } catch (err) {
         console.error("Error loading student dashboard data:", err);
+      } finally {
+        setIsMenuLoading(false);
       }
     }
     loadData();
@@ -175,20 +180,26 @@ function StudentDashboard({ userMessId }: { userMessId: any }) {
             </Link>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-            {menuItems.length > 0 ? (
-              menuItems.map((item, idx) => (
+          {isMenuLoading ? (
+            <MenuBufferingLoader
+              variant="card"
+              mealName={activeMeal}
+              count={4}
+            />
+          ) : menuItems.length > 0 ? (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+              {menuItems.map((item, idx) => (
                 <div key={idx} className="p-4 rounded-2xl bg-[var(--surface-2)] border border-[var(--border)] flex items-center gap-3">
                   <FoodIndicator isVeg={item.isVeg !== false} />
                   <span className="text-sm font-semibold text-[var(--ink)]">{item.name}</span>
                 </div>
-              ))
-            ) : (
-              <div className="col-span-2 py-10 text-center text-[var(--ink-muted)] text-xs">
-                No menu items set for this meal.
-              </div>
-            )}
-          </div>
+              ))}
+            </div>
+          ) : (
+            <div className="py-10 text-center text-[var(--ink-muted)] text-xs">
+              No menu items set for this meal.
+            </div>
+          )}
         </Card>
 
         {/* Quick Vote Card */}

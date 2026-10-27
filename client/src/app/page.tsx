@@ -35,6 +35,7 @@ import { useTheme } from "@/components/providers/ThemeProvider";
 import { Button } from "@/components/ui/Button";
 import { Badge } from "@/components/ui/Badge";
 import { useTodayMenu } from "@/hooks/useMenuData";
+import { MenuBufferingLoader } from "@/components/ui/MenuBufferingLoader";
 
 interface FoodRating {
   foodItem: string;
@@ -576,11 +577,11 @@ export default function LandingPage() {
           {/* Dish List */}
           <div className="mt-6">
             {menuLoading ? (
-              <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3 py-8">
-                {[1, 2, 3, 4, 5, 6].map((i) => (
-                  <div key={i} className="h-20 rounded-2xl bg-[var(--surface-2)] animate-pulse" />
-                ))}
-              </div>
+              <MenuBufferingLoader
+                variant="grid"
+                mealName={activeMealConfig.name}
+                count={6}
+              />
             ) : displayedItems.length > 0 ? (
               <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
                 {displayedItems.map((dish: any, idx: number) => {

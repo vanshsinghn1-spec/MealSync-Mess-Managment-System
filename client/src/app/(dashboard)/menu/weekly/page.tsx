@@ -7,6 +7,7 @@ import FoodIndicator from "@/components/layout/FoodIndicator";
 import { Card } from "@/components/ui/Card";
 import { Tabs } from "@/components/ui/Tabs";
 import { useTodayMenu, useWeeklyMenu } from "@/hooks/useMenuData";
+import { MenuBufferingLoader } from "@/components/ui/MenuBufferingLoader";
 import { MEAL_SCHEDULE } from "@/lib/utils";
 
 const getMealHeaderIcon = (meal: string) => {
@@ -109,12 +110,7 @@ export default function WeeklyMenuPage() {
       {/* Calendar layout */}
       <Card padding="lg" className="min-h-[400px] relative overflow-hidden">
         {isLoading ? (
-          <div className="absolute inset-0 flex items-center justify-center">
-            <div className="flex flex-col items-center gap-3">
-              <div className="w-8 h-8 rounded-full border-2 border-[var(--border)] border-t-[var(--accent)] animate-spin" />
-              <p className="text-xs text-[var(--ink-muted)]">Generating weekly schedule...</p>
-            </div>
-          </div>
+          <MenuBufferingLoader variant="weekly" />
         ) : weekly ? (
           <div className="space-y-8">
             {days.map((day) => (

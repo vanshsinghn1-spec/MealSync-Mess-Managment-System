@@ -8,6 +8,7 @@ import { Card } from "@/components/ui/Card";
 import { Badge } from "@/components/ui/Badge";
 import { Tabs } from "@/components/ui/Tabs";
 import { useTodayMenu } from "@/hooks/useMenuData";
+import { MenuBufferingLoader } from "@/components/ui/MenuBufferingLoader";
 import { MEAL_SCHEDULE } from "@/lib/utils";
 
 export default function TodayMenuPage() {
@@ -83,12 +84,11 @@ export default function TodayMenuPage() {
         {/* Left 2 Cols: Main Menu items */}
         <Card padding="lg" className="lg:col-span-2 min-h-[350px] relative">
           {isLoading ? (
-            <div className="absolute inset-0 flex items-center justify-center">
-              <div className="flex flex-col items-center gap-3">
-                <div className="w-8 h-8 rounded-full border-2 border-[var(--border)] border-t-[var(--accent)] animate-spin" />
-                <p className="text-xs text-[var(--ink-muted)]">Fetching daily items...</p>
-              </div>
-            </div>
+            <MenuBufferingLoader
+              variant="card"
+              mealName={activeMeal}
+              count={4}
+            />
           ) : menuItems.length > 0 ? (
             <div className="space-y-6">
               <div className="flex items-center justify-between border-b border-[var(--border)] pb-4">
@@ -136,7 +136,7 @@ export default function TodayMenuPage() {
           <hr className="border-[var(--border)] mb-5" />
 
           {isLoading ? (
-            <div className="py-10 text-center text-[var(--ink-muted)] text-xs">Loading menu...</div>
+            <MenuBufferingLoader variant="compact" count={3} />
           ) : nonVegItems.length > 0 ? (
             <div className="space-y-3">
               {nonVegItems.map((item: any, idx: number) => (
