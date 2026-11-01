@@ -98,9 +98,18 @@ function StudentDashboard({ userMessId }: { userMessId: any }) {
         const userMessSlug = userMessId?.slug || "mess-1";
         
         const activeVeg = menuRes.data.vegMenus?.find((m: any) => m.messId.slug === userMessSlug || m.messId._id === userMessId?._id || m.messId === userMessId);
-        setMenuItems(activeVeg ? activeVeg.items : []);
-
         const activeNonVeg = menuRes.data.nonVegMenus?.find((m: any) => m.messId.slug === userMessSlug || m.messId._id === userMessId?._id || m.messId === userMessId);
+
+        // Deduplicate and combine all items for today's meal display
+        const itemMap = new Map<string, any>();
+        (activeVeg?.items || []).forEach((item: any) => {
+          itemMap.set(item.name.toLowerCase().trim(), { ...item, isVeg: item.isVeg !== false });
+        });
+        (activeNonVeg?.items || []).forEach((item: any) => {
+          itemMap.set(item.name.toLowerCase().trim(), { ...item, isVeg: false });
+        });
+
+        setMenuItems(Array.from(itemMap.values()));
         setNonVegItems(activeNonVeg ? activeNonVeg.items : []);
 
         // Fetch notifications

@@ -48,9 +48,15 @@ export default function TodayMenuPage() {
         m.messId === userMessId
     );
 
+    const nonVegList = activeNonVeg ? activeNonVeg.items : [];
+    const nonVegNames = new Set(nonVegList.map((i: any) => i.name.toLowerCase().trim()));
+    const vegList = activeVeg
+      ? activeVeg.items.filter((item: any) => item.isVeg !== false && !nonVegNames.has(item.name.toLowerCase().trim()))
+      : [];
+
     return {
-      menuItems: activeVeg ? activeVeg.items : [],
-      nonVegItems: activeNonVeg ? activeNonVeg.items : [],
+      menuItems: vegList,
+      nonVegItems: nonVegList,
     };
   }, [meals, activeMeal, userMessSlug, userMessId]);
 

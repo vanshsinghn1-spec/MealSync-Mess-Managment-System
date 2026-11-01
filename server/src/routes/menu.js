@@ -86,12 +86,20 @@ router.get('/today', cacheMiddleware(3600), async (req, res, next) => {
       }
     }
 
+    const sanitizedVegMenus = vegMenus.map(m => {
+      const obj = m.toObject ? m.toObject() : { ...m };
+      return {
+        ...obj,
+        items: (obj.items || []).filter(item => item.isVeg !== false)
+      };
+    });
+
     res.json({
       date: today,
       day: dayName,
       weekType,
       currentMeal,
-      vegMenus,
+      vegMenus: sanitizedVegMenus,
       nonVegMenus,
     });
   } catch (error) {
@@ -183,7 +191,15 @@ router.get('/today/all', cacheMiddleware(3600), async (req, res, next) => {
         }
       }
 
-      meals[meal] = { vegMenus, nonVegMenus };
+      const sanitizedVegMenus = vegMenus.map(m => {
+        const obj = m.toObject ? m.toObject() : { ...m };
+        return {
+          ...obj,
+          items: (obj.items || []).filter(item => item.isVeg !== false)
+        };
+      });
+
+      meals[meal] = { vegMenus: sanitizedVegMenus, nonVegMenus };
     }
 
     res.json({

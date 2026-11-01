@@ -89,16 +89,27 @@ export default function LandingPage() {
     return { activeVegMenu: veg, activeNonVegMenu: nonVeg };
   }, [meals, activeMealId, selectedMess]);
 
-  // Combine items according to filter
+  // Combine items according to filter without duplicates
   const displayedItems = useMemo(() => {
-    const list: any[] = [];
+    const itemMap = new Map<string, any>();
+
+    // Add veg items (preserving actual isVeg flag)
     if (dietFilter !== "non-veg" && activeVegMenu?.items) {
-      list.push(...activeVegMenu.items.map((it: any) => ({ ...it, isVeg: true })));
+      for (const it of activeVegMenu.items) {
+        const isVeg = it.isVeg !== false;
+        if (dietFilter === "veg" && !isVeg) continue;
+        itemMap.set(it.name.toLowerCase().trim(), { ...it, isVeg });
+      }
     }
+
+    // Add non-veg items (ensuring non-veg is never shown under veg filter)
     if (dietFilter !== "veg" && activeNonVegMenu?.items) {
-      list.push(...activeNonVegMenu.items.map((it: any) => ({ ...it, isVeg: false })));
+      for (const it of activeNonVegMenu.items) {
+        itemMap.set(it.name.toLowerCase().trim(), { ...it, isVeg: false });
+      }
     }
-    return list;
+
+    return Array.from(itemMap.values());
   }, [activeVegMenu, activeNonVegMenu, dietFilter]);
 
   // Fetch ratings and polls (secondary data, non-blocking)

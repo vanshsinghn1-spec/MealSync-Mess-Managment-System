@@ -53,12 +53,18 @@ export default function RateMealPage() {
         );
         const nonVegItems = activeNonVeg ? activeNonVeg.items : [];
 
-        // Combine standard and extra items
-        const combined = [
-          ...vegItems.map((item: any) => ({ name: item.name, isVeg: true })),
-          ...nonVegItems.map((item: any) => ({ name: item.name, isVeg: false }))
-        ];
+        // Combine standard and extra items without duplicate entries
+        const itemMap = new Map<string, any>();
+        vegItems.forEach((item: any) => {
+          if (item.isVeg !== false) {
+            itemMap.set(item.name.toLowerCase().trim(), { ...item, isVeg: true });
+          }
+        });
+        nonVegItems.forEach((item: any) => {
+          itemMap.set(item.name.toLowerCase().trim(), { ...item, isVeg: false });
+        });
 
+        const combined = Array.from(itemMap.values());
         setMenuItems(combined);
 
         // Initialize ratings to 5 stars
