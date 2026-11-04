@@ -1,10 +1,12 @@
 /**
  * MealSync - Resilient Google Apps Script Automated Email Webhook Relay
  * 
+ * Scope: This Semester (1st August till today)
+ * 
  * Features & Capabilities:
+ * - Semester Sync: Ingests all mess circulars from 1st August onwards (read or unread).
  * - 24/7 Keep-Alive: Pings Render backend every 5 minutes so menu loads in <0.5s.
- * - Idempotent Email Sync: Passes messageId so read and unread emails can be relayed without duplicates.
- * - Full Archive Ingestion: Includes syncAllMessAffairsEmails() to backfill all past SAC emails (including Parotta Mela).
+ * - Idempotent Email Sync: Passes messageId so emails can be relayed without duplicates.
  * - Auto-Classification: Backend automatically tags Urgent / Menu Changes / SAC Notices.
  * 
  * Instructions to update in Google Apps Script:
@@ -12,23 +14,28 @@
  * 2. Open your project ("MealSync Email Relay").
  * 3. Replace all code in Code.gs with this script.
  * 4. Click Save (disk icon).
- * 5. (One-time): Select "syncAllMessAffairsEmails" in the top function dropdown and click "Run".
- *    This will instantly import all historical emails (including Parotta Mela) into MealSync!
- * 6. The regular 5-minute trigger (checkMessAffairsEmails) will handle all future updates 24/7.
+ * 5. (One-time Sync): Select "syncSemesterMessAffairsEmails" in the top function dropdown and click "Run".
+ *    This will immediately import all semester emails (from August 1st till today, including Parotta Mela) into MealSync!
+ * 6. The regular 5-minute trigger (checkMessAffairsEmails) will handle all new semester updates 24/7.
  */
 
 const MEALSYNC_WEBHOOK_URL = "https://mealsync-mess-managment-system.onrender.com/api/notifications/inbound-email";
 const WEBHOOK_SECRET = ""; 
 
+// Semester Start: 1st August of the current academic year
+const SEMESTER_YEAR = new Date().getFullYear();
+const SEMESTER_START_DATE = new Date(SEMESTER_YEAR, 7, 1, 0, 0, 0); // Month 7 is August (0-indexed)
+const GMAIL_SEMESTER_QUERY = "from:mess.affairs@iiitdm.ac.in after:" + SEMESTER_YEAR + "/07/31";
+
 /**
  * 5-Minute Recurring Trigger Function
- * Keeps backend warm and checks for new mess announcements
+ * Keeps backend warm and checks for new semester mess announcements
  */
 function checkMessAffairsEmails() {
   // 1. Keep Render backend and menu cache warm (eliminates cold starts)
   keepBackendWarm();
 
-  // 2. Check and relay recent SAC mess affairs emails (idempotent)
+  // 2. Check and relay recent SAC mess affairs emails for this semester
   try {
     runWithRetry(processRecentMessAffairsEmails, 2, 2000);
   } catch (err) {
@@ -74,44 +81,40 @@ function runWithRetry(fn, maxRetries, delayMs) {
 }
 
 /**
- * Relays recent emails from mess.affairs@iiitdm.ac.in.
+ * Relays recent semester emails from mess.affairs@iiitdm.ac.in.
  * Checks recent threads so emails are synced even if already opened/read on mobile.
  */
 function processRecentMessAffairsEmails() {
-  // Search recent 10 threads from mess affairs (both read and unread)
-  const query = 'from:mess.affairs@iiitdm.ac.in';
-  const threads = GmailApp.search(query, 0, 10);
-
-  if (!threads || threads.length === 0) {
-    return;
-  }
+  const threads = GmailApp.search(GMAIL_SEMESTER_QUERY, 0, 10);
+  if (!threads || threads.length === 0) return;
 
   for (let i = 0; i < threads.length; i++) {
-    const thread = threads[i];
     let messages;
-
     try {
-      messages = thread.getMessages();
+      messages = threads[i].getMessages();
     } catch (e) {
       continue;
     }
 
     for (let j = 0; j < messages.length; j++) {
-      relayMessageToMealSync(messages[j]);
+      const msg = messages[j];
+      // Only include messages from August 1st onwards
+      if (msg.getDate() && msg.getDate() < SEMESTER_START_DATE) continue;
+      relayMessageToMealSync(msg);
     }
   }
 }
 
 /**
- * One-Click Full Historical Sync:
- * Ingests ALL past emails from mess.affairs@iiitdm.ac.in (up to 50 threads).
+ * One-Click Semester Sync (1st August till today):
+ * Ingests ALL mess affairs emails from 1st August onwards (up to 50 threads).
  * Run this function once from the Google Apps Script editor to immediately backfill
- * "Parotta Mela" and all other historical announcements from latest to oldest!
+ * "Parotta Mela" and all semester announcements from latest to oldest!
  */
-function syncAllMessAffairsEmails() {
-  console.log("Starting full historical sync of mess.affairs@iiitdm.ac.in emails...");
-  const threads = GmailApp.search("from:mess.affairs@iiitdm.ac.in", 0, 50);
-  console.log(`Found ${threads.length} total thread(s). Ingesting...`);
+function syncSemesterMessAffairsEmails() {
+  console.log(`Starting semester sync of mess.affairs@iiitdm.ac.in emails (from 1st August ${SEMESTER_YEAR} till today)...`);
+  const threads = GmailApp.search(GMAIL_SEMESTER_QUERY, 0, 50);
+  console.log(`Found ${threads.length} semester thread(s). Ingesting...`);
 
   let count = 0;
   for (let i = 0; i < threads.length; i++) {
@@ -123,12 +126,21 @@ function syncAllMessAffairsEmails() {
     }
 
     for (let j = 0; j < messages.length; j++) {
-      const res = relayMessageToMealSync(messages[j]);
+      const msg = messages[j];
+      // Strictly enforce August 1st boundary
+      if (msg.getDate() && msg.getDate() < SEMESTER_START_DATE) continue;
+
+      const res = relayMessageToMealSync(msg);
       if (res) count++;
     }
   }
 
-  console.log(`Historical sync completed. Relayed ${count} message(s) to MealSync.`);
+  console.log(`Semester sync completed. Successfully synced ${count} message(s) to MealSync.`);
+}
+
+// Alias for backwards compatibility
+function syncAllMessAffairsEmails() {
+  syncSemesterMessAffairsEmails();
 }
 
 /**
