@@ -176,6 +176,7 @@ function normalizePayload(payload = {}) {
 
   const date = payload.date || payload.Date || payload.timestamp || new Date();
   const secret = payload.secret || payload.token || "";
+  const messageId = payload.messageId || payload.id || payload.gmailMessageId || payload["Message-ID"] || "";
 
   return {
     senderRaw,
@@ -184,7 +185,8 @@ function normalizePayload(payload = {}) {
     subject,
     bodyText,
     date,
-    secret
+    secret,
+    messageId
   };
 }
 
@@ -260,11 +262,36 @@ async function handleInboundSacEmailWebhook(rawPayload, query = {}, headers = {}
     const cleanTitle = cleanSubjectLine(normalized.subject);
     const cleanBody = cleanEmailBody(normalized.bodyText) || "An official update regarding hostel mess services was announced.";
 
+    // Deduplication check: check if notification already exists by gmailMessageId or (rawEmailSubject + senderEmail)
+    let existingNotification = null;
+    if (normalized.messageId) {
+      existingNotification = await Notification.findOne({ gmailMessageId: normalized.messageId });
+    }
+    if (!existingNotification && normalized.subject && normalized.senderEmail) {
+      existingNotification = await Notification.findOne({
+        rawEmailSubject: normalized.subject,
+        senderEmail: normalized.senderEmail
+      });
+    }
+
+    if (existingNotification) {
+      console.log(`[SAC Email Parser] Notice already exists for "${cleanTitle}". Skipping duplicate.`);
+      return {
+        status: "success",
+        message: "Notice already exists in database",
+        notification: existingNotification
+      };
+    }
+
     // Classify category and priority
     const { category, priority, isBanner, bannerHours } = analyzeCategoryAndPriority(cleanTitle, cleanBody);
 
-    const bannerActiveUntil = isBanner
-      ? new Date(Date.now() + bannerHours * 60 * 60 * 1000)
+    const emailDate = normalized.date ? new Date(normalized.date) : new Date();
+    const emailAgeMs = Date.now() - emailDate.getTime();
+    const bannerWindowMs = bannerHours * 60 * 60 * 1000;
+    const isStillActiveBanner = isBanner && (emailAgeMs < bannerWindowMs);
+    const bannerActiveUntil = isStillActiveBanner
+      ? new Date(emailDate.getTime() + bannerWindowMs)
       : null;
 
     // Create Notification document
@@ -275,11 +302,13 @@ async function handleInboundSacEmailWebhook(rawPayload, query = {}, headers = {}
       category,
       source: "sac_email",
       priority,
-      isBanner,
+      isBanner: isStillActiveBanner,
       bannerActiveUntil,
       senderEmail: normalized.senderEmail,
       rawEmailSubject: normalized.subject,
-      expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000) // 7 days retention
+      gmailMessageId: normalized.messageId || undefined,
+      createdAt: emailDate, // Preserves the exact date the email was sent
+      expiresAt: null // Keep permanently in announcement archive
     });
 
     await notification.save();

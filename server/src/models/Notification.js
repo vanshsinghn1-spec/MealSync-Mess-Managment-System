@@ -56,7 +56,7 @@ const notificationSchema = new mongoose.Schema({
   },
   expiresAt: {
     type: Date,
-    default: () => new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), // 7 days
+    default: null, // Keep indefinitely in announcement archive unless explicitly set
   },
 }, {
   timestamps: true,

@@ -150,12 +150,17 @@ router.get('/notifications/banners', async (req, res, next) => {
 // GET /api/notifications/public — Public notifications for landing page
 router.get('/notifications/public', async (req, res, next) => {
   try {
+    const now = new Date();
     const notifications = await Notification.find({
       recipientType: { $in: ['all', 'students'] },
-      expiresAt: { $gt: new Date() }
+      $or: [
+        { expiresAt: { $exists: false } },
+        { expiresAt: null },
+        { expiresAt: { $gt: now } }
+      ]
     })
       .sort({ createdAt: -1 })
-      .limit(8);
+      .limit(15);
 
     res.json(notifications);
   } catch (error) {
@@ -184,7 +189,7 @@ router.get('/notifications', authenticate, async (req, res, next) => {
 
     const notifications = await Notification.find(filter)
       .sort({ createdAt: -1 })
-      .limit(30);
+      .limit(50);
 
     res.json(notifications);
   } catch (error) {
